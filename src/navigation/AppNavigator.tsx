@@ -16,6 +16,7 @@ import { colors } from '../theme';
 import { AuthStackParamList } from './types';
 import MyEventsScreen from '../screens/MyEventsScreen';
 import EditEventScreen from '../screens/EditEventScreen';
+import CalendarScreen from '../screens/CalendarScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -44,7 +45,7 @@ function Tabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Calendar" component={PlaceholderScreen} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} />
       <Tab.Screen name="Create" component={CreateEventScreen} />
       <Tab.Screen name="Alerts" component={PlaceholderScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
