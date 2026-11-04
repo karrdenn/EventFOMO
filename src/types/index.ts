@@ -46,3 +46,5 @@ export type EventItem = {
 export const YEARS = ['1st year', '2nd year', '3rd year', '4th year', '5th year'];
 export const CLUBS = ['None', 'ACM', 'BRCS', 'NDLD', 'Other'];
 export const CATEGORIES = ['Technical', 'Cultural', 'Guest Lecture', 'Workshop'];
+export const ORGANIZERS = ['ACM', 'BRCS', 'NDLD', 'Department', 'Other'];
+export const MANDATORY_GROUPS = [...YEARS, 'ACM', 'BRCS', 'NDLD'];

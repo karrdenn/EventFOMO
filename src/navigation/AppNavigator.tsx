@@ -7,6 +7,7 @@ import PlaceholderScreen from '../screens/PlaceholderScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import HomeScreen from '../screens/HomeScreen';
 import EventDetailsScreen from '../screens/EventDetailsScreen';
+import CreateEventScreen from '../screens/CreateEventScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
@@ -42,7 +43,7 @@ function Tabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Calendar" component={PlaceholderScreen} />
-      <Tab.Screen name="Create" component={PlaceholderScreen} />
+      <Tab.Screen name="Create" component={CreateEventScreen} />
       <Tab.Screen name="Alerts" component={PlaceholderScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
