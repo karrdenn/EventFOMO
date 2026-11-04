@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import HomeScreen from '../screens/HomeScreen';
+import EventDetailsScreen from '../screens/EventDetailsScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
@@ -52,7 +53,11 @@ function MainStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen name="EventDetails" component={PlaceholderScreen} />
+      <Stack.Screen
+  name="EventDetails"
+  component={EventDetailsScreen}
+  options={{ title: 'Event Details', headerTintColor: colors.primary }}
+/>
       <Stack.Screen name="Scanner" component={PlaceholderScreen} />
       <Stack.Screen name="MyEvents" component={PlaceholderScreen} />
       <Stack.Screen name="EditEvent" component={PlaceholderScreen} />
