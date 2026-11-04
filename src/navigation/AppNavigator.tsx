@@ -20,6 +20,8 @@ import CalendarScreen from '../screens/CalendarScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import AlertsScreen from '../screens/AlertsScreen';
 import NotificationPrefsScreen from '../screens/NotificationPrefsScreen';
+import ScannerScreen from '../screens/ScannerScreen';
+import ShowQRScreen from '../screens/ShowQRScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -64,8 +66,8 @@ function MainStack() {
       <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditEvent" component={EditEventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Scanner" component={PlaceholderScreen} />
-      <Stack.Screen name="ShowQR" component={PlaceholderScreen} />
+      <Stack.Screen name="Scanner" component={ScannerScreen} options={{ title: 'Check In', headerTintColor: colors.primary }} />
+      <Stack.Screen name="ShowQR" component={ShowQRScreen} options={{ title: 'Event QR Code', headerTintColor: colors.primary }} />
       <Stack.Screen name="Attendance" component={PlaceholderScreen} />
       <Stack.Screen name="NotificationPrefs" component={NotificationPrefsScreen} options={{ headerShown: false }} />
     </Stack.Navigator>

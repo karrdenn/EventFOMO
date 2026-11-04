@@ -28,6 +28,7 @@ import { useSavedIds } from '../hooks/useSavedIds';
 import { categoryColor } from '../utils/category';
 import { formatLongDate, formatTimeRange } from '../utils/dates';
 import { colors, radius, spacing } from '../theme';
+import { useAttendedIds } from '../hooks/useAttendedIds';
 
 type EventRoute = RouteProp<{ EventDetails: { eventId: string } }, 'EventDetails'>;
 
@@ -38,6 +39,8 @@ export default function EventDetailsScreen() {
   const { profile } = useAuth();
   const { event, loading, notFound, error } = useEvent(eventId);
   const savedIds = useSavedIds(profile?.uid);
+  const attendedIds = useAttendedIds(profile?.uid);
+  const attended = attendedIds.has(eventId);
 
   const isOwner = !!event && !!profile && event.organizerId === profile.uid;
   const isStudent = profile?.role === 'student';
@@ -233,10 +236,13 @@ export default function EventDetailsScreen() {
 
         {showCheckIn && (
           <TouchableOpacity
-            style={[styles.btn, styles.btnFilled]}
+            style={[styles.btn, attended ? styles.btnSaved : styles.btnFilled]}
+            disabled={attended}
             onPress={() => navigation.navigate('Scanner', { eventId })}
           >
-            <Text style={[styles.btnText, { color: '#fff' }]}>Check In (QR)</Text>
+            <Text style={[styles.btnText, { color: attended ? colors.primary : '#fff' }]}>
+              {attended ? 'Checked In ✓' : 'Check In (QR)'}
+            </Text>
           </TouchableOpacity>
         )}
 

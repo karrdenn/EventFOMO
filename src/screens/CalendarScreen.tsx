@@ -11,6 +11,7 @@ import { useSavedIds } from '../hooks/useSavedIds';
 import { toggleSaved } from '../services/saved';
 import { EventItem } from '../types';
 import { colors, spacing } from '../theme';
+import { useAttendedIds } from '../hooks/useAttendedIds';
 
 type Tab = 'Saved' | 'Attended';
 
@@ -37,8 +38,14 @@ export default function CalendarScreen() {
     [events, savedIds]
   );
 
-  // Attendance is recorded in Step 15, so this list stays empty until then.
-  const attendedEvents: EventItem[] = [];
+  const attendedIds = useAttendedIds(profile?.uid);
+  const attendedEvents = useMemo(
+    () =>
+      events
+        .filter((e) => attendedIds.has(e.eventId))
+        .sort((a, b) => b.startTime.toMillis() - a.startTime.toMillis()),
+    [events, attendedIds]
+  );
 
   const source = tab === 'Saved' ? savedEvents : attendedEvents;
 

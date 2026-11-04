@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +10,12 @@ type Props = {
   label: string;
   value: Date;
   onChange: (date: Date) => void;
+};
+
+// "2026-11-04T22:30" in local time, the format a browser date box needs.
+const toLocalInput = (d: Date) => {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 };
 
 export default function DateTimeField({ label, value, onChange }: Props) {
@@ -39,7 +46,24 @@ export default function DateTimeField({ label, value, onChange }: Props) {
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
-      {Platform.OS === 'android' ? (
+      {Platform.OS === 'web' ? (
+        createElement('input', {
+          type: 'datetime-local',
+          value: toLocalInput(value),
+          onChange: (e: { target: { value: string } }) => {
+            const d = new Date(e.target.value);
+            if (!isNaN(d.getTime())) onChange(d);
+          },
+          style: {
+            padding: 12,
+            fontSize: 15,
+            borderRadius: radius.md,
+            border: '1px solid #D9DCE8',
+            backgroundColor: colors.surface,
+            color: colors.text,
+          },
+        })
+      ) : Platform.OS === 'android' ? (
         <TouchableOpacity style={styles.box} onPress={openAndroid} activeOpacity={0.8}>
           <Ionicons name="calendar-outline" size={18} color={colors.primary} />
           <Text style={styles.text}>{text}</Text>

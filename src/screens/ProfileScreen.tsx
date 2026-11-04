@@ -10,6 +10,7 @@ import { useEvents } from '../hooks/useEvents';
 import { useSavedIds } from '../hooks/useSavedIds';
 import { UserProfile } from '../types';
 import { colors, radius, spacing } from '../theme';
+import { useAttendedIds } from '../hooks/useAttendedIds';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -36,8 +37,12 @@ export default function ProfileScreen() {
     () => events.filter((e) => savedIds.has(e.eventId)).length,
     [events, savedIds]
   );
-  // Attendance is recorded from Step 15, so this stays 0 until then.
-  const attendedCount = 0;
+  
+  const attendedIds = useAttendedIds(authProfile?.uid);
+  const attendedCount = useMemo(
+    () => events.filter((e) => attendedIds.has(e.eventId)).length,
+    [events, attendedIds]
+  );
 
   const confirmLogOut = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
