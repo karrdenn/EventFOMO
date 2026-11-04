@@ -17,6 +17,7 @@ import { AuthStackParamList } from './types';
 import MyEventsScreen from '../screens/MyEventsScreen';
 import EditEventScreen from '../screens/EditEventScreen';
 import CalendarScreen from '../screens/CalendarScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -60,6 +61,7 @@ function MainStack() {
       <Stack.Screen name="EventDetails" component={EventDetailsScreen} options={{ title: 'Event Details', headerTintColor: colors.primary }}/>
       <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditEvent" component={EditEventScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Scanner" component={PlaceholderScreen} />
       <Stack.Screen name="ShowQR" component={PlaceholderScreen} />
       <Stack.Screen name="Attendance" component={PlaceholderScreen} />
