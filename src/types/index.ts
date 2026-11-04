@@ -68,3 +68,15 @@ export const DEFAULT_PREFS: UserPrefs = {
     isRead: boolean;
     createdAt: Timestamp | null;
   };
+
+  export type CheckinItem = {
+    id: string;
+    eventId: string;
+    userId: string;
+    organizerId: string;
+    studentName: string;
+    studentId: string;
+    year: string;
+    club: string;
+    checkedInAt: Timestamp | null;
+  };

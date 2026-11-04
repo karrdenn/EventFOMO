@@ -102,6 +102,12 @@ export default function MyEventsScreen() {
       </View>
       <TouchableOpacity
         hitSlop={10}
+        onPress={() => navigation.navigate('Attendance', { eventId: item.eventId })}
+      >
+        <Ionicons name="people" size={20} color={colors.primary} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        hitSlop={10}
         onPress={() => navigation.navigate('EditEvent', { eventId: item.eventId })}
       >
         <Ionicons name="pencil" size={20} color={colors.primary} />

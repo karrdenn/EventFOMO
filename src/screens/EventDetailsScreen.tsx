@@ -246,6 +246,14 @@ export default function EventDetailsScreen() {
           </TouchableOpacity>
         )}
 
+{isOwner && (
+          <TouchableOpacity
+            style={[styles.btn, styles.btnOutline]}
+            onPress={() => navigation.navigate('Attendance', { eventId })}
+          >
+            <Text style={[styles.btnText, { color: colors.primary }]}>Attendance</Text>
+          </TouchableOpacity>
+        )}
         {showQr && (
           <TouchableOpacity
             style={[styles.btn, styles.btnFilled]}
