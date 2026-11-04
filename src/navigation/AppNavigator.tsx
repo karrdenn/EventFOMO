@@ -14,6 +14,8 @@ import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme';
 import { AuthStackParamList } from './types';
+import MyEventsScreen from '../screens/MyEventsScreen';
+import EditEventScreen from '../screens/EditEventScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -54,14 +56,10 @@ function MainStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen
-  name="EventDetails"
-  component={EventDetailsScreen}
-  options={{ title: 'Event Details', headerTintColor: colors.primary }}
-/>
+      <Stack.Screen name="EventDetails" component={EventDetailsScreen} options={{ title: 'Event Details', headerTintColor: colors.primary }}/>
+      <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="EditEvent" component={EditEventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Scanner" component={PlaceholderScreen} />
-      <Stack.Screen name="MyEvents" component={PlaceholderScreen} />
-      <Stack.Screen name="EditEvent" component={PlaceholderScreen} />
       <Stack.Screen name="ShowQR" component={PlaceholderScreen} />
       <Stack.Screen name="Attendance" component={PlaceholderScreen} />
       <Stack.Screen name="NotificationPrefs" component={PlaceholderScreen} />
