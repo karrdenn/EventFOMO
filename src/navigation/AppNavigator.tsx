@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
@@ -38,7 +39,7 @@ function Tabs() {
         ),
       })}
     >
-      <Tab.Screen name="Home" component={PlaceholderScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Calendar" component={PlaceholderScreen} />
       <Tab.Screen name="Create" component={PlaceholderScreen} />
       <Tab.Screen name="Alerts" component={PlaceholderScreen} />

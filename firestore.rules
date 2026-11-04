@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // ---------- Users ----------
+    match /users/{uid} {
+      // Organizers need to read students' name, ID, year and club
+      // (attendance lists) and push tokens (notifications).
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role in ['student', 'staff']
+        && request.resource.data.fullName is string
+        && request.resource.data.fullName.size() > 0;
+
+      // You can edit your own profile, but never change your role.
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role;
+
+      allow delete: if false;
+    }
+
+    // ---------- Events ----------
+    match /events/{eventId} {
+      allow read: if signedIn();
+
+      // Anyone signed in can create an event, as its organizer.
+      allow create: if signedIn()
+        && request.resource.data.organizerId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.endTime > request.resource.data.startTime;
+
+      // Only the organizer can change or delete it.
+      allow update: if signedIn()
+        && resource.data.organizerId == request.auth.uid
+        && request.resource.data.organizerId == request.auth.uid;
+
+      allow delete: if signedIn()
+        && resource.data.organizerId == request.auth.uid;
+
+      // events/{id}/qr and events/{id}/checkins are added in the QR step.
+    }
+
+    // ---------- Saved events (bookmarks) ----------
+    match /savedEvents/{docId} {
+      // "resource == null" lets the app check whether a doc exists yet.
+      allow read: if signedIn()
+        && (resource == null || resource.data.userId == request.auth.uid);
+
+      allow create, update: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && docId == request.auth.uid + '_' + request.resource.data.eventId
+        && request.resource.data.status == 'saved';
+
+      allow delete: if signedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ---------- Notifications (one document per recipient) ----------
+    match /notifications/{id} {
+      allow read: if signedIn()
+        && resource.data.userId == request.auth.uid;
+
+      // Organizers create notifications for the people they notify.
+      allow create: if signedIn()
+        && request.resource.data.isRead == false;
+
+      // The recipient can only flip "isRead".
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+
+      allow delete: if signedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+  }
+}
