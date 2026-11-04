@@ -1,13 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
-import './src/services/firebase'; // makes sure Firebase starts when the app opens
+import { AuthProvider } from './src/context/AuthContext';
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AppNavigator />
-      <StatusBar style="dark" />
+      <AuthProvider>
+        <AppNavigator />
+        <StatusBar style="dark" />
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
