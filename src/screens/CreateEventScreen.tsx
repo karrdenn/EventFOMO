@@ -6,6 +6,7 @@ import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import EventForm, { EventFormData } from '../components/EventForm';
+import { notifyNewEvent } from '../services/notifications';
 import { colors, spacing } from '../theme';
 
 export default function CreateEventScreen() {
@@ -23,6 +24,14 @@ export default function CreateEventScreen() {
       organizerId: profile.uid,
       createdAt: serverTimestamp(),
     });
+
+    // A failure here must not stop the event from being published.
+    try {
+      await notifyNewEvent(ref.id, data, profile.uid);
+    } catch (e) {
+      console.warn('Could not send alerts', e);
+    }
+
     setFormKey((k) => k + 1);
     navigation.navigate('EventDetails', { eventId: ref.id });
   };

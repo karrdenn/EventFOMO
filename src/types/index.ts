@@ -48,3 +48,23 @@ export const CLUBS = ['None', 'ACM', 'BRCS', 'NDLD', 'Other'];
 export const CATEGORIES = ['Technical', 'Cultural', 'Guest Lecture', 'Workshop'];
 export const ORGANIZERS = ['ACM', 'BRCS', 'NDLD', 'Department', 'Other'];
 export const MANDATORY_GROUPS = [...YEARS, 'ACM', 'BRCS', 'NDLD'];
+
+export const DEFAULT_PREFS: UserPrefs = {
+    allow: true,
+    newEvents: true,
+    reminders: true,
+    mandatory: true,
+    updates: true,
+    leadMinutes: 60,
+  };
+  
+  export type NotificationItem = {
+    id: string;
+    userId: string;
+    eventId: string;
+    type: 'new' | 'mandatory';
+    title: string;
+    body: string;
+    isRead: boolean;
+    createdAt: Timestamp | null;
+  };
