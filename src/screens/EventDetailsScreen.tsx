@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Linking,
+    ScrollView,
+    Share,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -30,6 +31,7 @@ import { formatLongDate, formatTimeRange } from '../utils/dates';
 import { colors, radius, spacing } from '../theme';
 import { useAttendedIds } from '../hooks/useAttendedIds';
 import { appliesToStudent } from '../utils/mandatory';
+import * as Calendar from 'expo-calendar/legacy';
 
 type EventRoute = RouteProp<{ EventDetails: { eventId: string } }, 'EventDetails'>;
 
@@ -107,6 +109,35 @@ export default function EventDetailsScreen() {
       Alert.alert('Cannot open file', 'No app on this phone can open the schedule.')
     );
   };
+  const addToPhoneCalendar = async () => {
+    if (!event) return;
+    try {
+      await Calendar.createEventInCalendarAsync({
+        title: event.title,
+        startDate: event.startTime.toDate(),
+        endDate: event.endTime.toDate(),
+        location: event.venue,
+        notes: event.description || undefined,
+      });
+    } catch (e) {
+      Alert.alert(
+        'Could not open the calendar',
+        e instanceof Error ? e.message : 'Check that calendar access is allowed for this app.'
+      );
+    }
+  };
+
+  const shareEvent = async () => {
+    if (!event) return;
+    const when = `${formatLongDate(event.startTime)}, ${formatTimeRange(event.startTime, event.endTime)}`;
+    try {
+      await Share.share({
+        message: `${event.title}\n${when}\nVenue: ${event.venue}\n\nShared from EventFOMO`,
+      });
+    } catch {
+      // The person closed the share sheet, so there is nothing to do.
+    }
+  };  
 
   if (loading) {
     return (
@@ -190,6 +221,16 @@ export default function EventDetailsScreen() {
             </View>
           )}
 
+<View style={styles.actionRow}>
+            <TouchableOpacity style={styles.actionBtn} onPress={addToPhoneCalendar}>
+              <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+              <Text style={styles.actionText}>Add to Phone Calendar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={shareEvent}>
+              <Ionicons name="share-outline" size={18} color={colors.primary} />
+              <Text style={styles.actionText}>Share</Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.heading}>About Event</Text>
           <Text style={styles.paragraph}>{event.description || 'No description added.'}</Text>
 
@@ -298,6 +339,20 @@ const styles = StyleSheet.create({
   infoText: { flex: 1 },
   infoMain: { fontSize: 14, fontWeight: '700', color: colors.text },
   infoSub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  actionRow: { flexDirection: 'row', gap: 10, marginTop: spacing.md },
+  actionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 11,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.divider,
+    backgroundColor: colors.surface,
+  },
+  actionText: { fontSize: 12, fontWeight: '700', color: colors.primary },
   heading: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: spacing.lg },
   paragraph: { fontSize: 14, color: colors.text, lineHeight: 21, marginTop: 6 },
   pdfRow: {
