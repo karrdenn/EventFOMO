@@ -51,33 +51,35 @@ export const ORGANIZERS = ['ACM', 'BRCS', 'NDLD', 'Department', 'Other'];
 export const MANDATORY_GROUPS = [...YEARS, 'ACM', 'BRCS', 'NDLD'];
 
 export const DEFAULT_PREFS: UserPrefs = {
-    allow: true,
-    newEvents: true,
-    reminders: true,
-    mandatory: true,
-    updates: true,
-    leadMinutes: 60,
-  };
-  
-  export type NotificationItem = {
-    id: string;
-    userId: string;
-    eventId: string;
-    type: 'new' | 'mandatory';
-    title: string;
-    body: string;
-    isRead: boolean;
-    createdAt: Timestamp | null;
-  };
+  allow: true,
+  newEvents: true,
+  reminders: true,
+  mandatory: true,
+  updates: true,
+  leadMinutes: 60,
+};
 
-  export type CheckinItem = {
-    id: string;
-    eventId: string;
-    userId: string;
-    organizerId: string;
-    studentName: string;
-    studentId: string;
-    year: string;
-    club: string;
-    checkedInAt: Timestamp | null;
-  };
+export type CheckinItem = {
+  id: string;
+  eventId: string;
+  userId: string;
+  organizerId: string;
+  studentName: string;
+  studentId: string;
+  year: string;
+  club: string;
+  checkedInAt: Timestamp | null;
+};
+
+export type NotificationType = 'new_event' | 'reminder' | 'mandatory' | 'update';
+
+export type NotificationItem = {
+  id: string;
+  userId: string;
+  title: string;
+  body: string;
+  type: NotificationType;
+  relatedEventId: string;
+  createdAt: Timestamp | null;
+  isRead: boolean;
+};

@@ -4,9 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
 import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { notifyNewEvent } from '../services/notify';
 import { useAuth } from '../context/AuthContext';
 import EventForm, { EventFormData } from '../components/EventForm';
-import { notifyNewEvent } from '../services/notifications';
 import { colors, spacing } from '../theme';
 
 export default function CreateEventScreen() {
@@ -25,12 +25,18 @@ export default function CreateEventScreen() {
       createdAt: serverTimestamp(),
     });
 
-    // A failure here must not stop the event from being published.
-    try {
-      await notifyNewEvent(ref.id, data, profile.uid);
-    } catch (e) {
-      console.warn('Could not send alerts', e);
-    }
+    // Tell the right people. If this fails, the event is still published.
+    notifyNewEvent(
+      {
+        eventId: ref.id,
+        title: data.title,
+        category: data.category,
+        isMandatory: data.isMandatory,
+        mandatoryFor: data.mandatoryFor,
+        startTime: data.startTime,
+      },
+      profile.uid
+    ).catch(() => {});
 
     setFormKey((k) => k + 1);
     navigation.navigate('EventDetails', { eventId: ref.id });

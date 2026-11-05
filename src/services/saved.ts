@@ -10,9 +10,11 @@ export async function toggleSaved(uid: string, event: EventItem, currentlySaved:
     return;
   }
   // A few event fields are copied so the Calendar can show them quickly.
+  // organizerId lets the organizer find who saved the event, to tell them about changes.
   await setDoc(ref, {
     userId: uid,
     eventId: event.eventId,
+    organizerId: event.organizerId,
     savedAt: serverTimestamp(),
     status: 'saved',
     title: event.title,

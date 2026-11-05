@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import HomeScreen from '../screens/HomeScreen';
 import EventDetailsScreen from '../screens/EventDetailsScreen';
@@ -12,6 +11,7 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../hooks/useNotifications';
 import { colors } from '../theme';
 import { AuthStackParamList } from './types';
 import MyEventsScreen from '../screens/MyEventsScreen';
@@ -40,6 +40,9 @@ const tabIcons: Record<string, IconName> = {
 };
 
 function Tabs() {
+  const { profile } = useAuth();
+  const { unread } = useNotifications(profile?.uid);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -54,7 +57,11 @@ function Tabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
       <Tab.Screen name="Create" component={CreateEventScreen} />
-      <Tab.Screen name="Alerts" component={AlertsScreen} />
+      <Tab.Screen
+        name="Alerts"
+        component={AlertsScreen}
+        options={{ tabBarBadge: unread > 0 ? unread : undefined }}
+      />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -64,15 +71,19 @@ function MainStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen name="EventDetails" component={EventDetailsScreen} options={{ title: 'Event Details', headerTintColor: colors.primary }}/>
-      <Stack.Screen name="AttendanceHistory" component={AttendanceHistoryScreen} options={{ title: 'Attendance History', headerTintColor: colors.primary }}/>
+      <Stack.Screen name="EventDetails" component={EventDetailsScreen} options={{ title: 'Event Details', headerTintColor: colors.primary }} />
+      <Stack.Screen name="AttendanceHistory" component={AttendanceHistoryScreen} options={{ title: 'Attendance History', headerTintColor: colors.primary }} />
       <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditEvent" component={EditEventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Scanner" component={ScannerScreen} options={{ title: 'Check In', headerTintColor: colors.primary }} />
       <Stack.Screen name="ShowQR" component={ShowQRScreen} options={{ title: 'Event QR Code', headerTintColor: colors.primary }} />
       <Stack.Screen name="Attendance" component={AttendanceScreen} options={{ title: 'Attendance', headerTintColor: colors.primary }} />
-      <Stack.Screen name="NotificationPrefs" component={NotificationPrefsScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="NotificationPrefs"
+        component={NotificationPrefsScreen}
+        options={{ title: 'Notification Preferences', headerTintColor: colors.primary }}
+      />
     </Stack.Navigator>
   );
 }

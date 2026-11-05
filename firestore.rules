@@ -115,15 +115,19 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // ---------- Saved events (bookmarks) ----------
+        // ---------- Saved events (bookmarks) ----------
     match /savedEvents/{docId} {
+      // You read your own. The organizer can read who saved their event.
       allow read: if signedIn()
-        && (resource == null || resource.data.userId == request.auth.uid);
+        && (resource == null
+            || resource.data.userId == request.auth.uid
+            || resource.data.get('organizerId', '') == request.auth.uid);
 
       allow create, update: if signedIn()
         && request.resource.data.userId == request.auth.uid
         && docId == request.auth.uid + '_' + request.resource.data.eventId
-        && request.resource.data.status == 'saved';
+        && request.resource.data.status == 'saved'
+        && request.resource.data.organizerId == eventDoc(request.resource.data.eventId).organizerId;
 
       allow delete: if signedIn()
         && resource.data.userId == request.auth.uid;

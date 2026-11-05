@@ -5,6 +5,8 @@ import { NavigationProp, ParamListBase, useNavigation, useRoute } from '@react-n
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { describeChanges, notifyEventUpdated } from '../services/notify';
+import { useAuth } from '../context/AuthContext';
 import EventForm, { EventFormData } from '../components/EventForm';
 import { EventItem } from '../types';
 import { colors, spacing } from '../theme';
@@ -12,6 +14,7 @@ import { colors, spacing } from '../theme';
 export default function EditEventScreen() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const route = useRoute();
+  const { profile } = useAuth();
   const eventId = (route.params as { eventId?: string } | undefined)?.eventId;
 
   const [event, setEvent] = useState<EventItem | null>(null);
@@ -42,8 +45,26 @@ export default function EditEventScreen() {
   }, [eventId]);
 
   const onSubmit = async (data: EventFormData) => {
-    if (!eventId) throw new Error('No event was selected.');
+    if (!eventId || !event) throw new Error('No event was selected.');
     await updateDoc(doc(db, 'events', eventId), { ...data, updatedAt: serverTimestamp() });
+
+    // Tell people only when something important changed. A failure here does not undo the save.
+    const changes = describeChanges(event, data);
+    if (profile && changes.length > 0) {
+      notifyEventUpdated(
+        {
+          eventId,
+          title: data.title,
+          category: data.category,
+          isMandatory: data.isMandatory,
+          mandatoryFor: data.mandatoryFor,
+          startTime: data.startTime,
+        },
+        profile.uid,
+        changes
+      ).catch(() => {});
+    }
+
     Alert.alert('Saved', 'Your changes have been saved.');
     navigation.goBack();
   };

@@ -1,115 +1,171 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../context/AuthContext';
-import { useNotifications } from '../hooks/useNotifications';
-import { markAllRead, markRead } from '../services/notifications';
-import { NotificationItem } from '../types';
-import { formatLongDate } from '../utils/dates';
-import { colors, radius, spacing } from '../theme';
-
-export default function AlertsScreen() {
-  const { profile } = useAuth();
-  const navigation = useNavigation<NavigationProp<ParamListBase>>();
-  const { items, loading, error } = useNotifications(profile?.uid);
-  const unreadCount = items.filter((n) => !n.isRead).length;
-
-  const open = (n: NotificationItem) => {
-    if (!n.isRead) markRead(n.id).catch(() => {});
-    navigation.navigate('EventDetails', { eventId: n.eventId });
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+  } from 'react-native';
+  import { SafeAreaView } from 'react-native-safe-area-context';
+  import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
+  import { Ionicons } from '@expo/vector-icons';
+  import { deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore';
+  import { db } from '../services/firebase';
+  import { useAuth } from '../context/AuthContext';
+  import { useNotifications } from '../hooks/useNotifications';
+  import { NotificationItem, NotificationType } from '../types';
+  import { timeAgo } from '../utils/timeAgo';
+  import { colors, radius, spacing } from '../theme';
+  
+  type IconName = React.ComponentProps<typeof Ionicons>['name'];
+  
+  const META: Record<NotificationType, { icon: IconName; color: string }> = {
+    new_event: { icon: 'calendar', color: colors.primary },
+    mandatory: { icon: 'alert-circle', color: colors.mandatoryText },
+    reminder: { icon: 'alarm', color: '#FF9800' },
+    update: { icon: 'create', color: '#2196F3' },
   };
-
-  const renderItem = ({ item }: { item: NotificationItem }) => {
-    const mandatory = item.type === 'mandatory';
-    return (
-      <TouchableOpacity
-        style={[styles.card, !item.isRead && styles.cardUnread]}
-        activeOpacity={0.85}
-        onPress={() => open(item)}
-      >
-        <View style={[styles.iconBox, { backgroundColor: mandatory ? colors.mandatoryBg : '#EFEBFF' }]}>
-          <Ionicons
-            name={mandatory ? 'alert-circle' : 'calendar'}
-            size={22}
-            color={mandatory ? colors.mandatoryText : colors.primary}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.cardTitle, !item.isRead && styles.bold]} numberOfLines={2}>
-            {item.title}
-          </Text>
-          <Text style={styles.body} numberOfLines={2}>
-            {item.body}
-          </Text>
-          <Text style={styles.time}>{item.createdAt ? formatLongDate(item.createdAt) : 'Just now'}</Text>
-        </View>
-        {!item.isRead && <View style={styles.dot} />}
-      </TouchableOpacity>
-    );
-  };
-
-  return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Notifications</Text>
-        {unreadCount > 0 && (
-          <TouchableOpacity onPress={() => markAllRead(items).catch(() => {})} hitSlop={10}>
-            <Text style={styles.link}>Mark all read</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {loading ? (
-        <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />
-      ) : error ? (
-        <Text style={styles.empty}>{error}</Text>
-      ) : (
-        <FlatList
-          data={items}
-          keyExtractor={(n) => n.id}
-          renderItem={renderItem}
-          contentContainerStyle={{ padding: spacing.md, gap: 10 }}
-          ListEmptyComponent={
-            <View style={styles.emptyBox}>
-              <Ionicons name="notifications-outline" size={44} color={colors.textMuted} />
-              <Text style={styles.empty}>No notifications yet.</Text>
-            </View>
+  
+  export default function AlertsScreen() {
+    const { profile } = useAuth();
+    const navigation = useNavigation<NavigationProp<ParamListBase>>();
+    const { items, unread, loading, error } = useNotifications(profile?.uid);
+  
+    const open = (n: NotificationItem) => {
+      if (!n.isRead) {
+        updateDoc(doc(db, 'notifications', n.id), { isRead: true }).catch(() => {});
+      }
+      if (n.relatedEventId) {
+        navigation.navigate('EventDetails', { eventId: n.relatedEventId });
+      }
+    };
+  
+    const markAllRead = async () => {
+      const unreadItems = items.filter((i) => !i.isRead);
+      if (unreadItems.length === 0) return;
+      try {
+        for (let i = 0; i < unreadItems.length; i += 400) {
+          const batch = writeBatch(db);
+          for (const n of unreadItems.slice(i, i + 400)) {
+            batch.update(doc(db, 'notifications', n.id), { isRead: true });
           }
-        />
-      )}
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
-  link: { color: colors.primary, fontWeight: '700', fontSize: 13 },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  cardUnread: { backgroundColor: '#F3F0FF', borderColor: colors.primary },
-  iconBox: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  cardTitle: { fontSize: 14, color: colors.text },
-  bold: { fontWeight: '800' },
-  body: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  time: { fontSize: 11, color: colors.textMuted, marginTop: 4 },
-  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
-  emptyBox: { alignItems: 'center', marginTop: 60, gap: 8 },
-  empty: { color: colors.textMuted, textAlign: 'center' },
-});
+          await batch.commit();
+        }
+      } catch {
+        Alert.alert('Could not update', 'Check your internet connection and try again.');
+      }
+    };
+  
+    const confirmDelete = (n: NotificationItem) => {
+      Alert.alert('Delete notification', 'Remove this notification?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteDoc(doc(db, 'notifications', n.id)).catch(() => {}),
+        },
+      ]);
+    };
+  
+    const renderItem = ({ item }: { item: NotificationItem }) => {
+      const meta = META[item.type] ?? META.new_event;
+      return (
+        <TouchableOpacity
+          style={[styles.card, !item.isRead && styles.cardUnread]}
+          activeOpacity={0.85}
+          onPress={() => open(item)}
+          onLongPress={() => confirmDelete(item)}
+        >
+          <View style={[styles.iconWrap, { backgroundColor: `${meta.color}22` }]}>
+            <Ionicons name={meta.icon} size={20} color={meta.color} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.title, !item.isRead && styles.titleUnread]} numberOfLines={2}>
+              {item.title}
+            </Text>
+            <Text style={styles.body} numberOfLines={3}>
+              {item.body}
+            </Text>
+            <Text style={styles.time}>{timeAgo(item.createdAt)}</Text>
+          </View>
+          {!item.isRead && <View style={styles.dot} />}
+        </TouchableOpacity>
+      );
+    };
+  
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Text style={styles.heading}>Notifications</Text>
+          <TouchableOpacity onPress={markAllRead} disabled={unread === 0} hitSlop={10}>
+            <Text style={[styles.markAll, unread === 0 && { opacity: 0.4 }]}>Mark all read</Text>
+          </TouchableOpacity>
+        </View>
+  
+        {loading ? (
+          <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />
+        ) : error ? (
+          <Text style={styles.error}>{error}</Text>
+        ) : (
+          <FlatList
+            data={items}
+            keyExtractor={(n) => n.id}
+            renderItem={renderItem}
+            contentContainerStyle={{ padding: spacing.md, gap: 10 }}
+            ListEmptyComponent={
+              <View style={styles.empty}>
+                <Ionicons name="notifications-outline" size={48} color={colors.textMuted} />
+                <Text style={styles.emptyText}>No notifications yet.</Text>
+              </View>
+            }
+            ListFooterComponent={
+              items.length > 0 ? (
+                <Text style={styles.hint}>Press and hold a notification to delete it.</Text>
+            ) : undefined
+            }
+          />
+        )}
+      </SafeAreaView>
+    );
+  }
+  
+  const styles = StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    heading: { fontSize: 22, fontWeight: '800', color: colors.text },
+    markAll: { color: colors.primary, fontWeight: '700', fontSize: 13 },
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    cardUnread: { backgroundColor: '#F5F2FF', borderColor: '#D9D2FF' },
+    iconWrap: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    title: { fontSize: 14, color: colors.text },
+    titleUnread: { fontWeight: '800' },
+    body: { fontSize: 12, color: colors.textMuted, marginTop: 2, lineHeight: 17 },
+    time: { fontSize: 11, color: colors.textMuted, marginTop: 4 },
+    dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
+    empty: { alignItems: 'center', marginTop: 60, gap: 10 },
+    emptyText: { color: colors.textMuted },
+    hint: { textAlign: 'center', color: colors.textMuted, fontSize: 11, marginTop: 8 },
+    error: { color: colors.mandatoryText, padding: spacing.md },
+  });
