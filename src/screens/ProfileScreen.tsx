@@ -11,13 +11,21 @@ import { useSavedIds } from '../hooks/useSavedIds';
 import { useAttendedIds } from '../hooks/useAttendedIds';
 import ComplianceCard from '../components/ComplianceCard';
 import { UserProfile } from '../types';
-import { colors, radius, spacing } from '../theme';
+import { Palette, ThemeMode, radius, spacing, useTheme, useThemedStyles } from '../theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+const MODES: { label: string; value: ThemeMode }[] = [
+  { label: 'System', value: 'system' },
+  { label: 'Light', value: 'light' },
+  { label: 'Dark', value: 'dark' },
+];
 
 export default function ProfileScreen() {
   const { profile: authProfile, logOut } = useAuth();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const { colors, mode, setMode } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { events } = useEvents();
   const savedIds = useSavedIds(authProfile?.uid);
 
@@ -125,6 +133,21 @@ export default function ProfileScreen() {
 
         <ComplianceCard />
 
+        <View style={styles.appearanceCard}>
+          <Text style={styles.appearanceTitle}>Appearance</Text>
+          <View style={styles.modeRow}>
+            {MODES.map((m) => (
+              <TouchableOpacity
+                key={m.value}
+                style={[styles.modeChip, mode === m.value && styles.modeChipActive]}
+                onPress={() => setMode(m.value)}
+              >
+                <Text style={[styles.modeText, mode === m.value && styles.modeTextActive]}>{m.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         <View style={styles.menu}>
           <Row icon="create-outline" label="Edit Profile" onPress={() => navigation.navigate('EditProfile')} />
           <Row icon="calendar-outline" label="My Events" onPress={() => navigation.navigate('MyEvents')} />
@@ -138,8 +161,8 @@ export default function ProfileScreen() {
             icon="log-out-outline"
             label="Log Out"
             onPress={confirmLogOut}
-            color="#D32F2F"
-            textColor="#D32F2F"
+            color={colors.error}
+            textColor={colors.error}
           />
         </View>
 
@@ -149,49 +172,71 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text, padding: spacing.md },
-  top: { alignItems: 'center', paddingHorizontal: spacing.md },
-  avatar: { width: 96, height: 96, borderRadius: 48 },
-  avatarEmpty: { backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: '#fff', fontSize: 36, fontWeight: '800' },
-  cameraBadge: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.primary,
-    borderWidth: 2,
-    borderColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  name: { fontSize: 20, fontWeight: '800', color: colors.text, marginTop: 12 },
-  line: { color: colors.textMuted, marginTop: 3, fontSize: 13 },
-  statsRow: { flexDirection: 'row', gap: 12, paddingHorizontal: spacing.md, marginTop: spacing.md },
-  stat: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  statNumber: { fontSize: 22, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  menu: { marginTop: spacing.md, paddingHorizontal: spacing.md, gap: 10 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  rowText: { flex: 1, fontSize: 15, fontWeight: '600' },
-  version: { textAlign: 'center', color: colors.textMuted, fontSize: 12, marginTop: spacing.lg },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    title: { fontSize: 22, fontWeight: '800', color: colors.text, padding: spacing.md },
+    top: { alignItems: 'center', paddingHorizontal: spacing.md },
+    avatar: { width: 96, height: 96, borderRadius: 48 },
+    avatarEmpty: { backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+    avatarText: { color: '#fff', fontSize: 36, fontWeight: '800' },
+    cameraBadge: {
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.primary,
+      borderWidth: 2,
+      borderColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    name: { fontSize: 20, fontWeight: '800', color: colors.text, marginTop: 12 },
+    line: { color: colors.textMuted, marginTop: 3, fontSize: 13 },
+    statsRow: { flexDirection: 'row', gap: 12, paddingHorizontal: spacing.md, marginTop: spacing.md },
+    stat: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      paddingVertical: 14,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    statNumber: { fontSize: 22, fontWeight: '800', color: colors.text },
+    statLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+    appearanceCard: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    appearanceTitle: { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 10 },
+    modeRow: { flexDirection: 'row', gap: 8 },
+    modeChip: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: 9,
+      borderRadius: radius.pill,
+      backgroundColor: colors.chip,
+    },
+    modeChipActive: { backgroundColor: colors.primary },
+    modeText: { fontSize: 13, color: colors.text, fontWeight: '600' },
+    modeTextActive: { color: '#fff' },
+    menu: { marginTop: spacing.md, paddingHorizontal: spacing.md, gap: 10 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+    },
+    rowText: { flex: 1, fontSize: 15, fontWeight: '600' },
+    version: { textAlign: 'center', color: colors.textMuted, fontSize: 12, marginTop: spacing.lg },
+  });

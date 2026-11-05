@@ -22,10 +22,12 @@ import { uploadToCloudinary } from '../services/cloudinary';
 import { useAuth } from '../context/AuthContext';
 import PrimaryButton from '../components/PrimaryButton';
 import { CLUBS, UserProfile, YEARS } from '../types';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 export default function EditProfileScreen() {
   const { profile: authProfile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
   const [loading, setLoading] = useState(true);
@@ -161,7 +163,7 @@ export default function EditProfileScreen() {
               value={fullName}
               onChangeText={setFullName}
               placeholder="Your full name"
-              placeholderTextColor="#9E9E9E"
+              placeholderTextColor={colors.placeholder}
             />
 
             {isStudent && (
@@ -195,6 +197,7 @@ export default function EditProfileScreen() {
 }
 
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <TouchableOpacity style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
       <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
@@ -202,62 +205,63 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
-  avatar: { width: 96, height: 96, borderRadius: 48 },
-  avatarEmpty: { backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: '#fff', fontSize: 36, fontWeight: '800' },
-  cameraBadge: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.primary,
-    borderWidth: 2,
-    borderColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  link: { color: colors.primary, fontWeight: '700', fontSize: 13 },
-  removeLink: { color: '#D32F2F', fontWeight: '600', fontSize: 12 },
-  label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
-  input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-    borderRadius: radius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: colors.text,
-  },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-  },
-  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13 },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
-  errorBanner: {
-    backgroundColor: colors.mandatoryBg,
-    color: colors.mandatoryText,
-    padding: 12,
-    borderRadius: radius.sm,
-    fontSize: 13,
-  },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    title: { fontSize: 22, fontWeight: '800', color: colors.text },
+    avatar: { width: 96, height: 96, borderRadius: 48 },
+    avatarEmpty: { backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+    avatarText: { color: '#fff', fontSize: 36, fontWeight: '800' },
+    cameraBadge: {
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.primary,
+      borderWidth: 2,
+      borderColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    link: { color: colors.primary, fontWeight: '700', fontSize: 13 },
+    removeLink: { color: colors.error, fontWeight: '600', fontSize: 12 },
+    label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
+    input: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      fontSize: 15,
+      color: colors.text,
+    },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+    chip: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+    chipText: { color: colors.text, fontSize: 13 },
+    chipTextActive: { color: '#fff', fontWeight: '600' },
+    errorBanner: {
+      backgroundColor: colors.mandatoryBg,
+      color: colors.mandatoryText,
+      padding: 12,
+      borderRadius: radius.sm,
+      fontSize: 13,
+    },
+  });

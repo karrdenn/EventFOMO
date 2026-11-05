@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../hooks/useEvent';
 import { useAttendedIds } from '../hooks/useAttendedIds';
 import { checkIn } from '../services/checkin';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 type ScannerRoute = RouteProp<{ Scanner: { eventId: string } }, 'Scanner'>;
 type Result = { ok: boolean; text: string } | null;
@@ -16,6 +16,8 @@ export default function ScannerScreen() {
   const { eventId } = useRoute<ScannerRoute>().params;
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const { event, loading } = useEvent(eventId);
   const attendedIds = useAttendedIds(profile?.uid);
   const [permission, requestPermission] = useCameraPermissions();
@@ -107,7 +109,7 @@ export default function ScannerScreen() {
                 <Ionicons
                   name={result.ok ? 'checkmark-circle' : 'close-circle'}
                   size={56}
-                  color={result.ok ? '#2E7D32' : '#D32F2F'}
+                  color={result.ok ? colors.successText : colors.error}
                 />
                 <Text style={styles.resultTitle}>{result.ok ? 'Checked in!' : 'Check-in failed'}</Text>
                 <Text style={styles.resultText}>{result.text}</Text>
@@ -129,50 +131,58 @@ export default function ScannerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#000' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, backgroundColor: colors.background },
-  message: { color: colors.textMuted, textAlign: 'center', marginTop: 12 },
-  overlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
-  eventName: { position: 'absolute', top: 24, color: '#FFB300', fontWeight: '800', fontSize: 15, paddingHorizontal: 24 },
-  frame: { width: 240, height: 240, borderWidth: 3, borderColor: '#fff', borderRadius: 20 },
-  hint: { color: '#fff', marginTop: 20, fontWeight: '600' },
-  torchBtn: {
-    position: 'absolute',
-    bottom: 48,
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: '#fff',
-  },
-  torchText: { color: '#fff', fontSize: 12, fontWeight: '700' },
-  resultWrap: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  resultCard: {
-    width: '100%',
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: 8,
-  },
-  resultTitle: { fontSize: 20, fontWeight: '800', color: colors.text },
-  resultText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 },
-  button: {
-    marginTop: 12,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 28,
-    paddingVertical: 12,
-    borderRadius: radius.md,
-  },
-  buttonText: { color: '#fff', fontWeight: '700' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    // The camera view is dark in both themes.
+    screen: { flex: 1, backgroundColor: '#000' },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.lg,
+      backgroundColor: colors.background,
+    },
+    message: { color: colors.textMuted, textAlign: 'center', marginTop: 12 },
+    overlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
+    eventName: { position: 'absolute', top: 24, color: '#FFB300', fontWeight: '800', fontSize: 15, paddingHorizontal: 24 },
+    frame: { width: 240, height: 240, borderWidth: 3, borderColor: '#fff', borderRadius: 20 },
+    hint: { color: '#fff', marginTop: 20, fontWeight: '600' },
+    torchBtn: {
+      position: 'absolute',
+      bottom: 48,
+      flexDirection: 'row',
+      gap: 8,
+      alignItems: 'center',
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: '#fff',
+    },
+    torchText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+    resultWrap: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: 'rgba(0,0,0,0.65)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.lg,
+    },
+    resultCard: {
+      width: '100%',
+      backgroundColor: colors.surface,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+      gap: 8,
+    },
+    resultTitle: { fontSize: 20, fontWeight: '800', color: colors.text },
+    resultText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 },
+    button: {
+      marginTop: 12,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 28,
+      paddingVertical: 12,
+      borderRadius: radius.md,
+    },
+    buttonText: { color: '#fff', fontWeight: '700' },
+  });

@@ -9,12 +9,14 @@ import { describeChanges, notifyEventUpdated } from '../services/notify';
 import { useAuth } from '../context/AuthContext';
 import EventForm, { EventFormData } from '../components/EventForm';
 import { EventItem } from '../types';
-import { colors, spacing } from '../theme';
+import { Palette, spacing, useColors, useThemedStyles } from '../theme';
 
 export default function EditEventScreen() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const route = useRoute();
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const eventId = (route.params as { eventId?: string } | undefined)?.eventId;
 
   const [event, setEvent] = useState<EventItem | null>(null);
@@ -88,15 +90,16 @@ export default function EditEventScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
-  error: { color: colors.mandatoryText, padding: spacing.md },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    title: { fontSize: 22, fontWeight: '800', color: colors.text },
+    error: { color: colors.mandatoryText, padding: spacing.md },
+  });

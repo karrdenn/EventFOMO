@@ -4,10 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import ProgressBar from './ProgressBar';
 import { useAuth } from '../context/AuthContext';
 import { useAttendanceHistory } from '../hooks/useAttendanceHistory';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 export default function ComplianceCard() {
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { counts, completed, loading } = useAttendanceHistory(profile);
 
@@ -45,18 +47,19 @@ export default function ComplianceCard() {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 12, fontWeight: '700', color: colors.primary, letterSpacing: 0.5 },
-  headline: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: 6 },
-  sub: { fontSize: 12, color: colors.textMuted, marginTop: 8 },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    title: { fontSize: 12, fontWeight: '700', color: colors.primary, letterSpacing: 0.5 },
+    headline: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: 6 },
+    sub: { fontSize: 12, color: colors.textMuted, marginTop: 8 },
+  });

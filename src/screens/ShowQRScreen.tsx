@@ -8,7 +8,7 @@ import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../hooks/useEvent';
 import { makeQrPayload } from '../services/checkin';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 type ShowQrRoute = RouteProp<{ ShowQR: { eventId: string } }, 'ShowQR'>;
 
@@ -22,6 +22,8 @@ function newToken(): string {
 export default function ShowQRScreen() {
   const { eventId } = useRoute<ShowQrRoute>().params;
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const { event, loading } = useEvent(eventId);
 
   const [token, setToken] = useState('');
@@ -101,11 +103,12 @@ export default function ShowQRScreen() {
       </Text>
       <Text style={styles.sub}>Students scan this code to check in</Text>
 
+      {/* The code is always black on white so phone cameras can read it, in light and dark mode. */}
       <View style={styles.qrBox}>
         {token ? (
-          <QRCode value={makeQrPayload(eventId, token)} size={260} />
+          <QRCode value={makeQrPayload(eventId, token)} size={260} color="#000000" backgroundColor="#FFFFFF" />
         ) : (
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color="#6C5CE7" />
         )}
       </View>
 
@@ -124,26 +127,33 @@ export default function ShowQRScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background, alignItems: 'center', padding: spacing.lg },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, backgroundColor: colors.background },
-  message: { color: colors.textMuted, textAlign: 'center' },
-  title: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' },
-  sub: { color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg },
-  qrBox: {
-    width: 300,
-    height: 300,
-    backgroundColor: '#fff',
-    borderRadius: radius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  timer: { marginTop: spacing.md, color: colors.primary, fontWeight: '700' },
-  problem: { marginTop: 8, color: colors.mandatoryText, textAlign: 'center' },
-  countBox: { alignItems: 'center', marginTop: spacing.lg },
-  countNumber: { fontSize: 40, fontWeight: '800', color: colors.text },
-  countLabel: { color: colors.textMuted },
-  note: { color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: spacing.lg, lineHeight: 18 },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background, alignItems: 'center', padding: spacing.lg },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.lg,
+      backgroundColor: colors.background,
+    },
+    message: { color: colors.textMuted, textAlign: 'center' },
+    title: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' },
+    sub: { color: colors.textMuted, marginTop: 4, marginBottom: spacing.lg },
+    qrBox: {
+      width: 300,
+      height: 300,
+      backgroundColor: '#FFFFFF',
+      borderRadius: radius.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    timer: { marginTop: spacing.md, color: colors.primary, fontWeight: '700' },
+    problem: { marginTop: 8, color: colors.mandatoryText, textAlign: 'center' },
+    countBox: { alignItems: 'center', marginTop: spacing.lg },
+    countNumber: { fontSize: 40, fontWeight: '800', color: colors.text },
+    countLabel: { color: colors.textMuted },
+    note: { color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: spacing.lg, lineHeight: 18 },
+  });

@@ -13,21 +13,25 @@ import ProgressBar from '../components/ProgressBar';
 import { useAuth } from '../context/AuthContext';
 import { HistoryItem, HistoryStatus, useAttendanceHistory } from '../hooks/useAttendanceHistory';
 import { formatLongDate } from '../utils/dates';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 type Filter = 'All' | HistoryStatus;
 const FILTERS: Filter[] = ['All', 'Attended', 'Missed', 'Upcoming'];
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
-const STATUS_STYLE: Record<HistoryStatus, { bg: string; fg: string; icon: IconName }> = {
-  Attended: { bg: '#E3F6E8', fg: '#1B7A3A', icon: 'checkmark-circle' },
+const statusStyle = (
+  colors: Palette
+): Record<HistoryStatus, { bg: string; fg: string; icon: IconName }> => ({
+  Attended: { bg: colors.successBg, fg: colors.successText, icon: 'checkmark-circle' },
   Missed: { bg: colors.mandatoryBg, fg: colors.mandatoryText, icon: 'close-circle' },
-  Upcoming: { bg: '#EFEBFF', fg: colors.primary, icon: 'time' },
-};
+  Upcoming: { bg: colors.tint, fg: colors.primary, icon: 'time' },
+});
 
 export default function AttendanceHistoryScreen() {
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { items, counts, completed, loading, error } = useAttendanceHistory(profile);
   const [filter, setFilter] = useState<Filter>('All');
@@ -48,6 +52,7 @@ export default function AttendanceHistoryScreen() {
     );
   }
 
+  const STATUS = statusStyle(colors);
   const shown = filter === 'All' ? items : items.filter((i) => i.status === filter);
   const countFor = (f: Filter) =>
     f === 'All'
@@ -61,7 +66,7 @@ export default function AttendanceHistoryScreen() {
   const percent = completed === 0 ? 0 : Math.round((counts.attended / completed) * 100);
 
   const renderItem = ({ item }: { item: HistoryItem }) => {
-    const s = STATUS_STYLE[item.status];
+    const s = STATUS[item.status];
     return (
       <TouchableOpacity
         style={styles.row}
@@ -133,56 +138,57 @@ export default function AttendanceHistoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background,
-    padding: spacing.lg,
-  },
-  message: { color: colors.textMuted, textAlign: 'center' },
-  summary: {
-    backgroundColor: colors.surface,
-    margin: spacing.md,
-    marginBottom: 0,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  headline: { fontSize: 18, fontWeight: '800', color: colors.text },
-  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  percent: { fontSize: 12, fontWeight: '700', color: colors.primary },
-  sub: { fontSize: 12, color: colors.textMuted },
-  note: { fontSize: 11, color: colors.textMuted, marginTop: 8 },
-  tabs: { flexDirection: 'row', paddingHorizontal: spacing.sm, marginTop: spacing.sm },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
-  tabText: { fontSize: 12, color: colors.textMuted },
-  tabTextActive: { color: colors.primary, fontWeight: '700' },
-  tabLine: { height: 2, width: 30, backgroundColor: colors.primary, marginTop: 6 },
-  error: { color: colors.mandatoryText, paddingHorizontal: spacing.md },
-  empty: { color: colors.textMuted, textAlign: 'center', marginTop: 40 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  eventTitle: { fontSize: 15, fontWeight: '700', color: colors.text },
-  eventMeta: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: radius.pill,
-  },
-  badgeText: { fontSize: 12, fontWeight: '700' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+      padding: spacing.lg,
+    },
+    message: { color: colors.textMuted, textAlign: 'center' },
+    summary: {
+      backgroundColor: colors.surface,
+      margin: spacing.md,
+      marginBottom: 0,
+      padding: spacing.md,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    headline: { fontSize: 18, fontWeight: '800', color: colors.text },
+    summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
+    percent: { fontSize: 12, fontWeight: '700', color: colors.primary },
+    sub: { fontSize: 12, color: colors.textMuted },
+    note: { fontSize: 11, color: colors.textMuted, marginTop: 8 },
+    tabs: { flexDirection: 'row', paddingHorizontal: spacing.sm, marginTop: spacing.sm },
+    tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
+    tabText: { fontSize: 12, color: colors.textMuted },
+    tabTextActive: { color: colors.primary, fontWeight: '700' },
+    tabLine: { height: 2, width: 30, backgroundColor: colors.primary, marginTop: 6 },
+    error: { color: colors.mandatoryText, paddingHorizontal: spacing.md },
+    empty: { color: colors.textMuted, textAlign: 'center', marginTop: 40 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    eventTitle: { fontSize: 15, fontWeight: '700', color: colors.text },
+    eventMeta: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+    badge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: radius.pill,
+    },
+    badgeText: { fontSize: 12, fontWeight: '700' },
+  });

@@ -4,7 +4,7 @@ import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/d
 import { Ionicons } from '@expo/vector-icons';
 import { Timestamp } from 'firebase/firestore';
 import { formatLongDate, formatTimeRange } from '../utils/dates';
-import { colors, radius } from '../theme';
+import { Palette, radius, useTheme, useThemedStyles } from '../theme';
 
 type Props = {
   label: string;
@@ -19,6 +19,8 @@ const toLocalInput = (d: Date) => {
 };
 
 export default function DateTimeField({ label, value, onChange }: Props) {
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const ts = Timestamp.fromDate(value);
   const text = `${formatLongDate(ts)} at ${formatTimeRange(ts, null)}`;
 
@@ -58,9 +60,10 @@ export default function DateTimeField({ label, value, onChange }: Props) {
             padding: 12,
             fontSize: 15,
             borderRadius: radius.md,
-            border: '1px solid #D9DCE8',
+            border: `1px solid ${colors.border}`,
             backgroundColor: colors.surface,
             color: colors.text,
+            colorScheme: isDark ? 'dark' : 'light',
           },
         })
       ) : Platform.OS === 'android' ? (
@@ -74,6 +77,7 @@ export default function DateTimeField({ label, value, onChange }: Props) {
             value={value}
             mode="datetime"
             display="compact"
+            themeVariant={isDark ? 'dark' : 'light'}
             onChange={(_, d) => d && onChange(d)}
           />
         </View>
@@ -82,20 +86,21 @@ export default function DateTimeField({ label, value, onChange }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
-  box: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-    borderRadius: radius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-  },
-  text: { color: colors.text, fontSize: 14, flexShrink: 1 },
-  iosRow: { flexDirection: 'row', alignItems: 'center' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    wrap: { marginBottom: 16 },
+    label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
+    box: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: 14,
+      paddingVertical: 13,
+    },
+    text: { color: colors.text, fontSize: 14, flexShrink: 1 },
+    iosRow: { flexDirection: 'row', alignItems: 'center' },
+  });

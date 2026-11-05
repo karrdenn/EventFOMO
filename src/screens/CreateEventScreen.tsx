@@ -7,11 +7,12 @@ import { db } from '../services/firebase';
 import { notifyNewEvent } from '../services/notify';
 import { useAuth } from '../context/AuthContext';
 import EventForm, { EventFormData } from '../components/EventForm';
-import { colors, spacing } from '../theme';
+import { Palette, spacing, useThemedStyles } from '../theme';
 import { sendEventPush } from '../services/push';
 
 export default function CreateEventScreen() {
   const { profile } = useAuth();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   // Changing this number gives the form a fresh start after publishing.
   const [formKey, setFormKey] = useState(0);
@@ -39,11 +40,11 @@ export default function CreateEventScreen() {
       profile.uid
     ).catch(() => {});
     try {
-        // For one-phone testing, change false to true, then change it back.
-        await sendEventPush(ref.id, data, profile.uid, false);
-      } catch (e) {
-        console.warn('Could not send push', e);
-      }
+      // For one-phone testing, change false to true, then change it back.
+      await sendEventPush(ref.id, data, profile.uid, false);
+    } catch (e) {
+      console.warn('Could not send push', e);
+    }
 
     setFormKey((k) => k + 1);
     navigation.navigate('EventDetails', { eventId: ref.id });
@@ -59,8 +60,9 @@ export default function CreateEventScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+    title: { fontSize: 22, fontWeight: '800', color: colors.text },
+  });

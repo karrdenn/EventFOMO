@@ -21,7 +21,7 @@ import DateTimeField from './DateTimeField';
 import PrimaryButton from './PrimaryButton';
 import { uploadToCloudinary } from '../services/cloudinary';
 import { CATEGORIES, EventItem, MANDATORY_GROUPS, ORGANIZERS } from '../types';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 // Everything the form produces. The screen that uses the form saves it to Firestore.
 export type EventFormData = {
@@ -59,6 +59,9 @@ function defaultStart(): Date {
 }
 
 export default function EventForm({ existing, submitLabel, onSubmit }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
+
   const knownClub = !!existing && CLUB_ORGANIZERS.includes(existing.organizerName);
   const oldGroups = existing?.mandatoryFor ?? [];
   const oldSchedule = existing?.scheduleType ?? '';
@@ -318,7 +321,7 @@ export default function EventForm({ existing, submitLabel, onSubmit }: Props) {
         </View>
         {scheduleMode === 'pdf' && (
           <TouchableOpacity style={styles.pdfBox} onPress={pickPdf}>
-            <Ionicons name="document-text" size={22} color="#D32F2F" />
+            <Ionicons name="document-text" size={22} color={colors.error} />
             <Text style={styles.pdfText} numberOfLines={1}>
               {pdf ? pdf.name : existingPdfUrl ? 'Current PDF attached. Tap to replace.' : 'Choose a PDF file'}
             </Text>
@@ -345,12 +348,14 @@ export default function EventForm({ existing, submitLabel, onSubmit }: Props) {
 }
 
 function Field({ label, ...rest }: TextInputProps & { label: string }) {
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.fieldWrap}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         style={[styles.input, rest.multiline && styles.multiline]}
-        placeholderTextColor="#9E9E9E"
+        placeholderTextColor={colors.placeholder}
         {...rest}
       />
     </View>
@@ -358,6 +363,7 @@ function Field({ label, ...rest }: TextInputProps & { label: string }) {
 }
 
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <TouchableOpacity style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
       <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
@@ -365,81 +371,82 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   );
 }
 
-const styles = StyleSheet.create({
-  fieldWrap: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
-  input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-    borderRadius: radius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: colors.text,
-  },
-  multiline: { minHeight: 100, textAlignVertical: 'top' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-  },
-  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13 },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
-  coverBox: { height: 170, borderRadius: radius.md, overflow: 'hidden' },
-  coverEmpty: {
-    backgroundColor: '#EFEBFF',
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  coverText: { color: colors.primary, fontWeight: '600', marginTop: 4 },
-  coverImage: { width: '100%', height: '100%' },
-  removeBtn: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  link: { color: colors.primary, fontWeight: '700', fontSize: 13 },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-    paddingVertical: 8,
-  },
-  switchLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
-  pdfBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-    borderRadius: radius.md,
-    padding: 14,
-    marginBottom: 16,
-  },
-  pdfText: { flex: 1, color: colors.text },
-  errorBanner: {
-    backgroundColor: colors.mandatoryBg,
-    color: colors.mandatoryText,
-    padding: 12,
-    borderRadius: radius.sm,
-    fontSize: 13,
-  },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    fieldWrap: { marginBottom: 16 },
+    label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
+    input: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      fontSize: 15,
+      color: colors.text,
+    },
+    multiline: { minHeight: 100, textAlignVertical: 'top' },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+    chip: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+    chipText: { color: colors.text, fontSize: 13 },
+    chipTextActive: { color: '#fff', fontWeight: '600' },
+    coverBox: { height: 170, borderRadius: radius.md, overflow: 'hidden' },
+    coverEmpty: {
+      backgroundColor: colors.tint,
+      borderWidth: 1.5,
+      borderStyle: 'dashed',
+      borderColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    coverText: { color: colors.primary, fontWeight: '600', marginTop: 4 },
+    coverImage: { width: '100%', height: '100%' },
+    removeBtn: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    link: { color: colors.primary, fontWeight: '700', fontSize: 13 },
+    switchRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+      paddingVertical: 8,
+    },
+    switchLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
+    pdfBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: 14,
+      marginBottom: 16,
+    },
+    pdfText: { flex: 1, color: colors.text },
+    errorBanner: {
+      backgroundColor: colors.mandatoryBg,
+      color: colors.mandatoryText,
+      padding: 12,
+      borderRadius: radius.sm,
+      fontSize: 13,
+    },
+  });

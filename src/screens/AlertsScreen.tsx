@@ -16,21 +16,24 @@ import {
   import { useNotifications } from '../hooks/useNotifications';
   import { NotificationItem, NotificationType } from '../types';
   import { timeAgo } from '../utils/timeAgo';
-  import { colors, radius, spacing } from '../theme';
+  import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
   
   type IconName = React.ComponentProps<typeof Ionicons>['name'];
   
-  const META: Record<NotificationType, { icon: IconName; color: string }> = {
+  const metaFor = (colors: Palette): Record<NotificationType, { icon: IconName; color: string }> => ({
     new_event: { icon: 'calendar', color: colors.primary },
     mandatory: { icon: 'alert-circle', color: colors.mandatoryText },
-    reminder: { icon: 'alarm', color: '#FF9800' },
-    update: { icon: 'create', color: '#2196F3' },
-  };
+    reminder: { icon: 'alarm', color: colors.category.Workshop },
+    update: { icon: 'create', color: colors.category.Technical },
+  });
   
   export default function AlertsScreen() {
     const { profile } = useAuth();
+    const colors = useColors();
+    const styles = useThemedStyles(makeStyles);
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const { items, unread, loading, error } = useNotifications(profile?.uid);
+    const META = metaFor(colors);
   
     const open = (n: NotificationItem) => {
       if (!n.isRead) {
@@ -122,7 +125,7 @@ import {
             ListFooterComponent={
               items.length > 0 ? (
                 <Text style={styles.hint}>Press and hold a notification to delete it.</Text>
-            ) : undefined
+              ) : undefined
             }
           />
         )}
@@ -130,42 +133,43 @@ import {
     );
   }
   
-  const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: colors.background },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-    },
-    heading: { fontSize: 22, fontWeight: '800', color: colors.text },
-    markAll: { color: colors.primary, fontWeight: '700', fontSize: 13 },
-    card: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 12,
-      backgroundColor: colors.surface,
-      borderRadius: radius.md,
-      padding: 12,
-      borderWidth: 1,
-      borderColor: colors.divider,
-    },
-    cardUnread: { backgroundColor: '#F5F2FF', borderColor: '#D9D2FF' },
-    iconWrap: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    title: { fontSize: 14, color: colors.text },
-    titleUnread: { fontWeight: '800' },
-    body: { fontSize: 12, color: colors.textMuted, marginTop: 2, lineHeight: 17 },
-    time: { fontSize: 11, color: colors.textMuted, marginTop: 4 },
-    dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
-    empty: { alignItems: 'center', marginTop: 60, gap: 10 },
-    emptyText: { color: colors.textMuted },
-    hint: { textAlign: 'center', color: colors.textMuted, fontSize: 11, marginTop: 8 },
-    error: { color: colors.mandatoryText, padding: spacing.md },
-  });
+  const makeStyles = (colors: Palette) =>
+    StyleSheet.create({
+      safe: { flex: 1, backgroundColor: colors.background },
+      header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+      },
+      heading: { fontSize: 22, fontWeight: '800', color: colors.text },
+      markAll: { color: colors.primary, fontWeight: '700', fontSize: 13 },
+      card: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        backgroundColor: colors.surface,
+        borderRadius: radius.md,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: colors.divider,
+      },
+      cardUnread: { backgroundColor: colors.unreadBg, borderColor: colors.border },
+      iconWrap: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      title: { fontSize: 14, color: colors.text },
+      titleUnread: { fontWeight: '800' },
+      body: { fontSize: 12, color: colors.textMuted, marginTop: 2, lineHeight: 17 },
+      time: { fontSize: 11, color: colors.textMuted, marginTop: 4 },
+      dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
+      empty: { alignItems: 'center', marginTop: 60, gap: 10 },
+      emptyText: { color: colors.textMuted },
+      hint: { textAlign: 'center', color: colors.textMuted, fontSize: 11, marginTop: 8 },
+      error: { color: colors.mandatoryText, padding: spacing.md },
+    });

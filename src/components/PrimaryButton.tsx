@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { colors, radius } from '../theme';
+import { Palette, radius, useThemedStyles } from '../theme';
 
 type Props = {
   title: string;
@@ -9,6 +9,7 @@ type Props = {
 };
 
 export default function PrimaryButton({ title, onPress, loading, disabled }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const off = loading || disabled;
   return (
     <TouchableOpacity
@@ -22,14 +23,15 @@ export default function PrimaryButton({ title, onPress, loading, disabled }: Pro
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  off: { opacity: 0.6 },
-  text: { color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: 0.5 },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    button: {
+      backgroundColor: colors.primary,
+      borderRadius: radius.md,
+      paddingVertical: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    off: { opacity: 0.6 },
+    text: { color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: 0.5 },
+  });

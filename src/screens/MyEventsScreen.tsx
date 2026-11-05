@@ -17,13 +17,15 @@ import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { EventItem } from '../types';
 import { formatLongDate } from '../utils/dates';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 type Tab = 'All' | 'Upcoming' | 'Past';
 const TABS: Tab[] = ['All', 'Upcoming', 'Past'];
 
 export default function MyEventsScreen() {
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,7 +115,7 @@ export default function MyEventsScreen() {
         <Ionicons name="pencil" size={20} color={colors.primary} />
       </TouchableOpacity>
       <TouchableOpacity hitSlop={10} onPress={() => confirmDelete(item)}>
-        <Ionicons name="trash" size={20} color="#D32F2F" />
+        <Ionicons name="trash" size={20} color={colors.error} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -157,36 +159,37 @@ export default function MyEventsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
-  tabs: { flexDirection: 'row', paddingHorizontal: spacing.md },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
-  tabText: { fontSize: 14, color: '#757575' },
-  tabTextActive: { color: colors.primary, fontWeight: '700' },
-  tabLine: { height: 2, width: 36, backgroundColor: colors.primary, marginTop: 6 },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#E7E9F2',
-  },
-  thumb: { width: 56, height: 56, borderRadius: 10 },
-  thumbEmpty: { backgroundColor: '#EFEBFF', alignItems: 'center', justifyContent: 'center' },
-  category: { fontSize: 11, color: colors.primary, fontWeight: '700' },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: colors.text },
-  date: { fontSize: 12, color: '#757575', marginTop: 2 },
-  empty: { textAlign: 'center', color: '#757575', marginTop: 40 },
-  error: { color: colors.mandatoryText, padding: spacing.md },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    title: { fontSize: 22, fontWeight: '800', color: colors.text },
+    tabs: { flexDirection: 'row', paddingHorizontal: spacing.md },
+    tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
+    tabText: { fontSize: 14, color: colors.textMuted },
+    tabTextActive: { color: colors.primary, fontWeight: '700' },
+    tabLine: { height: 2, width: 36, backgroundColor: colors.primary, marginTop: 6 },
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: 10,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    thumb: { width: 56, height: 56, borderRadius: 10 },
+    thumbEmpty: { backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
+    category: { fontSize: 11, color: colors.primary, fontWeight: '700' },
+    cardTitle: { fontSize: 15, fontWeight: '700', color: colors.text },
+    date: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+    empty: { textAlign: 'center', color: colors.textMuted, marginTop: 40 },
+    error: { color: colors.mandatoryText, padding: spacing.md },
+  });

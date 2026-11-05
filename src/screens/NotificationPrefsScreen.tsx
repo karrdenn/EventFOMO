@@ -7,7 +7,7 @@ import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { DEFAULT_PREFS, UserPrefs } from '../types';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 const LEADS = [
   { label: '15 min', value: 15 },
@@ -25,6 +25,8 @@ const OPTIONS: { key: SwitchKey; label: string }[] = [
 
 export default function NotificationPrefsScreen() {
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const [prefs, setPrefs] = useState<UserPrefs>({ ...DEFAULT_PREFS, ...(profile?.prefs ?? {}) });
 
@@ -100,40 +102,41 @@ export default function NotificationPrefsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
-  rowBorder: { borderTopWidth: 1, borderTopColor: colors.divider },
-  mainLabel: { fontSize: 15, fontWeight: '800', color: colors.text },
-  label: { fontSize: 14, color: colors.text },
-  dim: { color: colors.textMuted },
-  heading: { fontSize: 15, fontWeight: '800', color: colors.text, marginTop: spacing.lg, marginBottom: 10 },
-  chips: { flexDirection: 'row', gap: 8 },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-  },
-  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13 },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
-  note: { color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: spacing.lg, lineHeight: 18 },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    title: { fontSize: 22, fontWeight: '800', color: colors.text },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
+    rowBorder: { borderTopWidth: 1, borderTopColor: colors.divider },
+    mainLabel: { fontSize: 15, fontWeight: '800', color: colors.text },
+    label: { fontSize: 14, color: colors.text },
+    dim: { color: colors.textMuted },
+    heading: { fontSize: 15, fontWeight: '800', color: colors.text, marginTop: spacing.lg, marginBottom: 10 },
+    chips: { flexDirection: 'row', gap: 8 },
+    chip: {
+      paddingHorizontal: 16,
+      paddingVertical: 9,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+    chipText: { color: colors.text, fontSize: 13 },
+    chipTextActive: { color: '#fff', fontWeight: '600' },
+    note: { color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: spacing.lg, lineHeight: 18 },
+  });

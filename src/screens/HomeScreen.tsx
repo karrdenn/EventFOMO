@@ -21,7 +21,7 @@ import { useAttendedIds } from '../hooks/useAttendedIds';
 import { toggleSaved } from '../services/saved';
 import { RankedEvent, rankForYou } from '../utils/forYou';
 import { CATEGORIES, EventItem } from '../types';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 const FILTERS = ['All', ...CATEGORIES];
 
@@ -30,6 +30,8 @@ const MODES: Mode[] = ['For You', 'All'];
 
 export default function HomeScreen() {
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { events, loading, error } = useEvents();
   const savedIds = useSavedIds(profile?.uid);
@@ -117,7 +119,7 @@ export default function HomeScreen() {
         <TextInput
           style={styles.searchInput}
           placeholder="Search events, shows..."
-          placeholderTextColor="#9E9E9E"
+          placeholderTextColor={colors.placeholder}
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"
@@ -193,57 +195,58 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-  },
-  small: { fontSize: 12, color: colors.textMuted },
-  greeting: { fontSize: 22, fontWeight: '800', color: colors.text },
-  toggle: {
-    flexDirection: 'row',
-    backgroundColor: '#E8EAF6',
-    borderRadius: radius.md,
-    padding: 4,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-  },
-  toggleBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: radius.sm },
-  toggleActive: { backgroundColor: colors.surface },
-  toggleText: { color: colors.textMuted, fontWeight: '600', fontSize: 13 },
-  toggleTextActive: { color: colors.primary, fontWeight: '800' },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  searchInput: { flex: 1, paddingVertical: 11, fontSize: 14, color: colors.text },
-  chips: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, gap: 8 },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: '#E8EAF6',
-  },
-  chipActive: { backgroundColor: colors.primary },
-  chipText: { fontSize: 13, color: colors.text, fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
-  list: { paddingHorizontal: spacing.md, paddingBottom: spacing.xl },
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.text },
-  sectionSub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  reasonRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 6, marginLeft: 4 },
-  reasonText: { fontSize: 12, fontWeight: '700' },
-  empty: { alignItems: 'center', marginTop: 40, gap: 12 },
-  emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: 8 },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+    },
+    small: { fontSize: 12, color: colors.textMuted },
+    greeting: { fontSize: 22, fontWeight: '800', color: colors.text },
+    toggle: {
+      flexDirection: 'row',
+      backgroundColor: colors.chip,
+      borderRadius: radius.md,
+      padding: 4,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.md,
+    },
+    toggleBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: radius.sm },
+    toggleActive: { backgroundColor: colors.surface },
+    toggleText: { color: colors.textMuted, fontWeight: '600', fontSize: 13 },
+    toggleTextActive: { color: colors.primary, fontWeight: '800' },
+    searchBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.md,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    searchInput: { flex: 1, paddingVertical: 11, fontSize: 14, color: colors.text },
+    chips: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, gap: 8 },
+    chip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      backgroundColor: colors.chip,
+    },
+    chipActive: { backgroundColor: colors.primary },
+    chipText: { fontSize: 13, color: colors.text, fontWeight: '600' },
+    chipTextActive: { color: '#fff' },
+    list: { paddingHorizontal: spacing.md, paddingBottom: spacing.xl },
+    sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.text },
+    sectionSub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+    reasonRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 6, marginLeft: 4 },
+    reasonText: { fontSize: 12, fontWeight: '700' },
+    empty: { alignItems: 'center', marginTop: 40, gap: 12 },
+    emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: 8 },
+  });

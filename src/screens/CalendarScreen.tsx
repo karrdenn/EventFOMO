@@ -10,7 +10,7 @@ import { useEvents } from '../hooks/useEvents';
 import { useSavedIds } from '../hooks/useSavedIds';
 import { toggleSaved } from '../services/saved';
 import { EventItem } from '../types';
-import { colors, spacing } from '../theme';
+import { Palette, spacing, useTheme, useThemedStyles } from '../theme';
 import { useAttendedIds } from '../hooks/useAttendedIds';
 
 type Tab = 'Saved' | 'Attended';
@@ -21,6 +21,8 @@ const dateKey = (d: Date) =>
 
 export default function CalendarScreen() {
   const { profile } = useAuth();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { events, loading, error } = useEvents();
   const savedIds = useSavedIds(profile?.uid);
@@ -62,7 +64,7 @@ export default function CalendarScreen() {
       };
     }
     return result;
-  }, [source, selected]);
+  }, [source, selected, colors]);
 
   const shown = useMemo(
     () => (selected ? source.filter((e) => dateKey(e.startTime.toDate()) === selected) : source),
@@ -92,16 +94,22 @@ export default function CalendarScreen() {
   const header = (
     <View>
       <Calendar
+        // The key makes the calendar redraw when the theme changes.
+        key={isDark ? 'dark' : 'light'}
         markedDates={marked}
         onDayPress={(d) => onDayPress(d.dateString)}
         firstDay={1}
         enableSwipeMonths
         theme={{
           calendarBackground: colors.background,
+          textSectionTitleColor: colors.textMuted,
+          dayTextColor: colors.text,
+          textDisabledColor: colors.placeholder,
           todayTextColor: colors.primary,
           arrowColor: colors.primary,
           dotColor: colors.primary,
           selectedDayBackgroundColor: colors.primary,
+          selectedDayTextColor: '#FFFFFF',
           monthTextColor: colors.text,
           textMonthFontWeight: '800',
         }}
@@ -172,24 +180,25 @@ export default function CalendarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  titleRow: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
-  tabs: { flexDirection: 'row', paddingHorizontal: spacing.md },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
-  tabText: { fontSize: 14, color: colors.textMuted },
-  tabTextActive: { color: colors.primary, fontWeight: '700' },
-  tabLine: { height: 2, width: 48, backgroundColor: colors.primary, marginTop: 6 },
-  listHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-  },
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.text },
-  link: { color: colors.primary, fontWeight: '700', fontSize: 13 },
-  emptyBox: { alignItems: 'center', marginTop: 24, gap: 8 },
-  empty: { color: colors.textMuted, textAlign: 'center' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.background },
+    titleRow: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+    title: { fontSize: 22, fontWeight: '800', color: colors.text },
+    tabs: { flexDirection: 'row', paddingHorizontal: spacing.md },
+    tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
+    tabText: { fontSize: 14, color: colors.textMuted },
+    tabTextActive: { color: colors.primary, fontWeight: '700' },
+    tabLine: { height: 2, width: 48, backgroundColor: colors.primary, marginTop: 6 },
+    listHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+    },
+    sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.text },
+    link: { color: colors.primary, fontWeight: '700', fontSize: 13 },
+    emptyBox: { alignItems: 'center', marginTop: 24, gap: 8 },
+    empty: { color: colors.textMuted, textAlign: 'center' },
+  });

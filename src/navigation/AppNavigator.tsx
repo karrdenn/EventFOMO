@@ -1,5 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,7 +12,7 @@ import SignUpScreen from '../screens/auth/SignUpScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../hooks/useNotifications';
-import { colors } from '../theme';
+import { useColors, useTheme } from '../theme';
 import { AuthStackParamList } from './types';
 import MyEventsScreen from '../screens/MyEventsScreen';
 import EditEventScreen from '../screens/EditEventScreen';
@@ -44,6 +44,7 @@ const tabIcons: Record<string, IconName> = {
 
 function Tabs() {
   const { profile } = useAuth();
+  const colors = useColors();
   const { unread } = useNotifications(profile?.uid);
   useReminderSync();
   usePushRegistration();
@@ -55,6 +56,7 @@ function Tabs() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.divider },
         tabBarIcon: ({ color, size }) => (
           <Ionicons name={tabIcons[route.name]} size={size} color={color} />
         ),
@@ -74,21 +76,29 @@ function Tabs() {
 }
 
 function MainStack() {
+  const colors = useColors();
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.surface },
+        headerTintColor: colors.primary,
+        headerTitleStyle: { color: colors.text },
+        contentStyle: { backgroundColor: colors.background },
+      }}
+    >
       <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen name="EventDetails" component={EventDetailsScreen} options={{ title: 'Event Details', headerTintColor: colors.primary }} />
-      <Stack.Screen name="AttendanceHistory" component={AttendanceHistoryScreen} options={{ title: 'Attendance History', headerTintColor: colors.primary }} />
+      <Stack.Screen name="EventDetails" component={EventDetailsScreen} options={{ title: 'Event Details' }} />
+      <Stack.Screen name="AttendanceHistory" component={AttendanceHistoryScreen} options={{ title: 'Attendance History' }} />
       <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditEvent" component={EditEventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Scanner" component={ScannerScreen} options={{ title: 'Check In', headerTintColor: colors.primary }} />
-      <Stack.Screen name="ShowQR" component={ShowQRScreen} options={{ title: 'Event QR Code', headerTintColor: colors.primary }} />
-      <Stack.Screen name="Attendance" component={AttendanceScreen} options={{ title: 'Attendance', headerTintColor: colors.primary }} />
+      <Stack.Screen name="Scanner" component={ScannerScreen} options={{ title: 'Check In' }} />
+      <Stack.Screen name="ShowQR" component={ShowQRScreen} options={{ title: 'Event QR Code' }} />
+      <Stack.Screen name="Attendance" component={AttendanceScreen} options={{ title: 'Attendance' }} />
       <Stack.Screen
         name="NotificationPrefs"
         component={NotificationPrefsScreen}
-        options={{ title: 'Notification Preferences', headerTintColor: colors.primary }}
+        options={{ title: 'Notification Preferences' }}
       />
     </Stack.Navigator>
   );
@@ -106,6 +116,20 @@ function AuthFlow() {
 
 export default function AppNavigator() {
   const { user, profile, loading, logOut } = useAuth();
+  const { colors, isDark } = useTheme();
+
+  // Colors the navigation system uses for backgrounds, cards and borders.
+  const navTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme : DefaultTheme).colors,
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.surface,
+      text: colors.text,
+      border: colors.divider,
+    },
+  };
 
   // Checking who is logged in, or waiting for the profile to load.
   if (loading || (user && !profile)) {
@@ -121,5 +145,7 @@ export default function AppNavigator() {
     );
   }
 
-  return <NavigationContainer>{user ? <MainStack /> : <AuthFlow />}</NavigationContainer>;
+  return (
+    <NavigationContainer theme={navTheme}>{user ? <MainStack /> : <AuthFlow />}</NavigationContainer>
+  );
 }

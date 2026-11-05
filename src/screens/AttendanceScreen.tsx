@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../hooks/useEvent';
 import { shareCsv } from '../services/exportCsv';
 import { CheckinItem, UserProfile } from '../types';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 type AttendanceRoute = RouteProp<{ Attendance: { eventId: string } }, 'Attendance'>;
 type Filter = 'Attended' | 'Absent';
@@ -29,6 +29,8 @@ const timeText = (item: CheckinItem) =>
 export default function AttendanceScreen() {
   const { eventId } = useRoute<AttendanceRoute>().params;
   const { profile } = useAuth();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const { event, loading } = useEvent(eventId);
 
   const [checkins, setCheckins] = useState<CheckinItem[]>([]);
@@ -211,62 +213,69 @@ export default function AttendanceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, backgroundColor: colors.background },
-  message: { color: colors.textMuted, textAlign: 'center' },
-  summary: { padding: spacing.md },
-  title: { fontSize: 20, fontWeight: '800', color: colors.text },
-  statsRow: { flexDirection: 'row', gap: 12, marginTop: spacing.md },
-  stat: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  statNumber: { fontSize: 24, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  groups: { color: colors.mandatoryText, fontSize: 12, fontWeight: '600', marginTop: 10 },
-  tabs: { flexDirection: 'row', paddingHorizontal: spacing.md },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
-  tabText: { fontSize: 14, color: colors.textMuted },
-  tabTextActive: { color: colors.primary, fontWeight: '700' },
-  tabLine: { height: 2, width: 60, backgroundColor: colors.primary, marginTop: 6 },
-  error: { color: colors.mandatoryText, paddingHorizontal: spacing.md, marginTop: 8 },
-  empty: { color: colors.textMuted, textAlign: 'center', marginTop: 40 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: colors.divider,
-  },
-  name: { fontSize: 15, fontWeight: '700', color: colors.text },
-  sub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  time: { fontSize: 12, color: colors.primary, fontWeight: '700' },
-  footer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.divider,
-  },
-  exportBtn: {
-    flexDirection: 'row',
-    gap: 8,
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  exportText: { color: '#fff', fontWeight: '800', letterSpacing: 0.5 },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.lg,
+      backgroundColor: colors.background,
+    },
+    message: { color: colors.textMuted, textAlign: 'center' },
+    summary: { padding: spacing.md },
+    title: { fontSize: 20, fontWeight: '800', color: colors.text },
+    statsRow: { flexDirection: 'row', gap: 12, marginTop: spacing.md },
+    stat: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      paddingVertical: 12,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    statNumber: { fontSize: 24, fontWeight: '800', color: colors.text },
+    statLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+    groups: { color: colors.mandatoryText, fontSize: 12, fontWeight: '600', marginTop: 10 },
+    tabs: { flexDirection: 'row', paddingHorizontal: spacing.md },
+    tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
+    tabText: { fontSize: 14, color: colors.textMuted },
+    tabTextActive: { color: colors.primary, fontWeight: '700' },
+    tabLine: { height: 2, width: 60, backgroundColor: colors.primary, marginTop: 6 },
+    error: { color: colors.mandatoryText, paddingHorizontal: spacing.md, marginTop: 8 },
+    empty: { color: colors.textMuted, textAlign: 'center', marginTop: 40 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: colors.divider,
+    },
+    name: { fontSize: 15, fontWeight: '700', color: colors.text },
+    sub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+    time: { fontSize: 12, color: colors.primary, fontWeight: '700' },
+    footer: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      padding: spacing.md,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.divider,
+    },
+    exportBtn: {
+      flexDirection: 'row',
+      gap: 8,
+      backgroundColor: colors.primary,
+      borderRadius: radius.md,
+      paddingVertical: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    exportText: { color: '#fff', fontWeight: '800', letterSpacing: 0.5 },
+  });

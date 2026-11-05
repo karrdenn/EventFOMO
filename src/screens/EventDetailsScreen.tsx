@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Linking,
-    ScrollView,
-    Share,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Linking,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -28,7 +28,7 @@ import { useEvent } from '../hooks/useEvent';
 import { useSavedIds } from '../hooks/useSavedIds';
 import { categoryColor } from '../utils/category';
 import { formatLongDate, formatTimeRange } from '../utils/dates';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 import { useAttendedIds } from '../hooks/useAttendedIds';
 import { appliesToStudent } from '../utils/mandatory';
 import * as Calendar from 'expo-calendar/legacy';
@@ -39,6 +39,8 @@ export default function EventDetailsScreen() {
   const { eventId } = useRoute<EventRoute>().params;
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const insets = useSafeAreaInsets();
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const { profile } = useAuth();
   const { event, loading, notFound, error } = useEvent(eventId);
   const savedIds = useSavedIds(profile?.uid);
@@ -93,7 +95,7 @@ export default function EventDetailsScreen() {
         : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOwner, event, navigation, eventId]);
+  }, [isOwner, event, navigation, eventId, colors]);
 
   const onToggleSave = async () => {
     if (!profile || !event) return;
@@ -109,6 +111,7 @@ export default function EventDetailsScreen() {
       Alert.alert('Cannot open file', 'No app on this phone can open the schedule.')
     );
   };
+
   const addToPhoneCalendar = async () => {
     if (!event) return;
     try {
@@ -137,7 +140,7 @@ export default function EventDetailsScreen() {
     } catch {
       // The person closed the share sheet, so there is nothing to do.
     }
-  };  
+  };
 
   if (loading) {
     return (
@@ -159,7 +162,7 @@ export default function EventDetailsScreen() {
     );
   }
 
-  const tint = categoryColor(event.category);
+  const tint = categoryColor(event.category, colors);
   const groups = event.mandatoryFor ?? [];
   const mandatoryText = groups.length
     ? `Mandatory for: ${groups.join(', ')}`
@@ -167,7 +170,8 @@ export default function EventDetailsScreen() {
   const hasSchedule = !!event.scheduleContent && (event.scheduleType === 'pdf' || event.scheduleType === 'text');
 
   // The second footer button depends on who is looking at the event.
-  const showCheckIn = isStudent && event.isMandatory && !isOwner && !!profile && appliesToStudent(event, profile.year, profile.club);
+  const showCheckIn =
+    isStudent && event.isMandatory && !isOwner && !!profile && appliesToStudent(event, profile.year, profile.club);
   const showQr = isOwner && event.isMandatory;
 
   return (
@@ -221,7 +225,7 @@ export default function EventDetailsScreen() {
             </View>
           )}
 
-<View style={styles.actionRow}>
+          <View style={styles.actionRow}>
             <TouchableOpacity style={styles.actionBtn} onPress={addToPhoneCalendar}>
               <Ionicons name="calendar-outline" size={18} color={colors.primary} />
               <Text style={styles.actionText}>Add to Phone Calendar</Text>
@@ -231,6 +235,7 @@ export default function EventDetailsScreen() {
               <Text style={styles.actionText}>Share</Text>
             </TouchableOpacity>
           </View>
+
           <Text style={styles.heading}>About Event</Text>
           <Text style={styles.paragraph}>{event.description || 'No description added.'}</Text>
 
@@ -242,7 +247,7 @@ export default function EventDetailsScreen() {
                   style={styles.pdfRow}
                   onPress={() => openSchedule(event.scheduleContent)}
                 >
-                  <Ionicons name="document-text" size={24} color="#D32F2F" />
+                  <Ionicons name="document-text" size={24} color={colors.error} />
                   <Text style={styles.pdfText}>View Program Schedule (PDF)</Text>
                   <Ionicons name="open-outline" size={18} color={colors.textMuted} />
                 </TouchableOpacity>
@@ -288,7 +293,7 @@ export default function EventDetailsScreen() {
           </TouchableOpacity>
         )}
 
-{isOwner && (
+        {isOwner && (
           <TouchableOpacity
             style={[styles.btn, styles.btnOutline]}
             onPress={() => navigation.navigate('Attendance', { eventId })}
@@ -309,102 +314,103 @@ export default function EventDetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background,
-    padding: spacing.lg,
-  },
-  message: { color: colors.textMuted, textAlign: 'center', marginTop: 12 },
-  backBtn: { marginTop: 16, paddingHorizontal: 20, paddingVertical: 10 },
-  backText: { color: colors.primary, fontWeight: '700' },
-  cover: { width: '100%', height: 230 },
-  coverPlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  body: {
-    padding: spacing.md,
-    marginTop: -20,
-    backgroundColor: colors.background,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-  },
-  tags: { flexDirection: 'row', gap: 8, marginTop: spacing.sm, marginBottom: spacing.sm },
-  tag: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: radius.pill },
-  tagText: { color: '#fff', fontSize: 12, fontWeight: '700' },
-  title: { fontSize: 24, fontWeight: '800', color: colors.text },
-  mandatoryLine: { color: colors.mandatoryText, fontSize: 13, fontWeight: '600', marginTop: 4 },
-  infoRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginTop: spacing.md },
-  infoText: { flex: 1 },
-  infoMain: { fontSize: 14, fontWeight: '700', color: colors.text },
-  infoSub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  actionRow: { flexDirection: 'row', gap: 10, marginTop: spacing.md },
-  actionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 11,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.divider,
-    backgroundColor: colors.surface,
-  },
-  actionText: { fontSize: 12, fontWeight: '700', color: colors.primary },
-  heading: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: spacing.lg },
-  paragraph: { fontSize: 14, color: colors.text, lineHeight: 21, marginTop: 6 },
-  pdfRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginTop: 8,
-  },
-  pdfText: { flex: 1, color: colors.text, fontWeight: '600' },
-  organizerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { color: '#fff', fontWeight: '800', fontSize: 16 },
-  footer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.divider,
-  },
-  btn: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnOutline: { borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.surface },
-  btnSaved: { backgroundColor: '#EFEBFF' },
-  btnFilled: { backgroundColor: colors.primary },
-  btnText: { fontSize: 14, fontWeight: '700' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+      padding: spacing.lg,
+    },
+    message: { color: colors.textMuted, textAlign: 'center', marginTop: 12 },
+    backBtn: { marginTop: 16, paddingHorizontal: 20, paddingVertical: 10 },
+    backText: { color: colors.primary, fontWeight: '700' },
+    cover: { width: '100%', height: 230 },
+    coverPlaceholder: { alignItems: 'center', justifyContent: 'center' },
+    body: {
+      padding: spacing.md,
+      marginTop: -20,
+      backgroundColor: colors.background,
+      borderTopLeftRadius: radius.lg,
+      borderTopRightRadius: radius.lg,
+    },
+    tags: { flexDirection: 'row', gap: 8, marginTop: spacing.sm, marginBottom: spacing.sm },
+    tag: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: radius.pill },
+    tagText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+    title: { fontSize: 24, fontWeight: '800', color: colors.text },
+    mandatoryLine: { color: colors.mandatoryText, fontSize: 13, fontWeight: '600', marginTop: 4 },
+    infoRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginTop: spacing.md },
+    infoText: { flex: 1 },
+    infoMain: { fontSize: 14, fontWeight: '700', color: colors.text },
+    infoSub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+    actionRow: { flexDirection: 'row', gap: 10, marginTop: spacing.md },
+    actionBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 11,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.divider,
+      backgroundColor: colors.surface,
+    },
+    actionText: { fontSize: 12, fontWeight: '700', color: colors.primary },
+    heading: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: spacing.lg },
+    paragraph: { fontSize: 14, color: colors.text, lineHeight: 21, marginTop: 6 },
+    pdfRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      marginTop: 8,
+    },
+    pdfText: { flex: 1, color: colors.text, fontWeight: '600' },
+    organizerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginTop: spacing.lg,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+    footer: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      flexDirection: 'row',
+      gap: 12,
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.divider,
+    },
+    btn: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    btnOutline: { borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.surface },
+    btnSaved: { backgroundColor: colors.tint },
+    btnFilled: { backgroundColor: colors.primary },
+    btnText: { fontSize: 14, fontWeight: '700' },
+  });
