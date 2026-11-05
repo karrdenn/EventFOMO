@@ -8,9 +8,10 @@ import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useEvents } from '../hooks/useEvents';
 import { useSavedIds } from '../hooks/useSavedIds';
+import { useAttendedIds } from '../hooks/useAttendedIds';
+import ComplianceCard from '../components/ComplianceCard';
 import { UserProfile } from '../types';
 import { colors, radius, spacing } from '../theme';
-import { useAttendedIds } from '../hooks/useAttendedIds';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -37,7 +38,7 @@ export default function ProfileScreen() {
     () => events.filter((e) => savedIds.has(e.eventId)).length,
     [events, savedIds]
   );
-  
+
   const attendedIds = useAttendedIds(authProfile?.uid);
   const attendedCount = useMemo(
     () => events.filter((e) => attendedIds.has(e.eventId)).length,
@@ -121,6 +122,8 @@ export default function ProfileScreen() {
             <Text style={styles.statLabel}>Saved</Text>
           </View>
         </View>
+
+        <ComplianceCard />
 
         <View style={styles.menu}>
           <Row icon="create-outline" label="Edit Profile" onPress={() => navigation.navigate('EditProfile')} />

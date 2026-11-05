@@ -1,6 +1,7 @@
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { EventItem, UserProfile } from '../types';
+import { appliesToStudent } from '../utils/mandatory';
 
 const EARLY_MINUTES = 15;
 
@@ -28,6 +29,9 @@ export async function checkIn(
   scanned: string,
   alreadyCheckedIn: boolean
 ): Promise<void> {
+  if (profile.role !== 'student') {
+    throw new Error('Only student accounts can check in.');
+  }
   if (alreadyCheckedIn) throw new Error('You have already checked in to this event.');
 
   const qr = parseQr(scanned);
@@ -35,6 +39,13 @@ export async function checkIn(
   if (qr.eventId !== event.eventId) throw new Error('This code belongs to a different event.');
 
   // Friendly messages. The Firestore rules enforce the same limits using server time.
+  if (event.isMandatory && !appliesToStudent(event, profile.year ?? '', profile.club ?? '')) {
+    const groups = (event.mandatoryFor ?? []).join(', ');
+    throw new Error(
+      `This event is only for: ${groups}. Your year or club is not on the list. If your year or club is wrong, update it in Edit Profile.`
+    );
+  }
+
   const now = Date.now();
   if (now < event.startTime.toMillis() - EARLY_MINUTES * 60 * 1000) {
     throw new Error(`Too early. Check-in opens ${EARLY_MINUTES} minutes before the event starts.`);
@@ -58,8 +69,9 @@ export async function checkIn(
   } catch (e) {
     const code = (e as { code?: string }).code;
     if (code === 'permission-denied') {
+      // The server only says "denied", so the likely causes are listed for the student.
       throw new Error(
-        'Check-in was rejected. The code may have expired, so ask the organizer to show it again and scan right away. If you are not a student, you cannot check in.'
+        'Check-in was rejected. The code may have expired, so ask the organizer to show it again and scan right away. Also make sure your year and club are set correctly in Edit Profile.'
       );
     }
     throw new Error('Could not check in. Check your internet connection and try again.');

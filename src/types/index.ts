@@ -22,6 +22,7 @@ export type UserProfile = {
   photoUrl: string;
   expoPushToken: string;
   prefs: UserPrefs;
+  createdAt?: Timestamp | null;
 };
 
 export type EventItem = {

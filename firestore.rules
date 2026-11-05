@@ -6,10 +6,31 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function eventDoc(id) {
+      return get(/databases/$(database)/documents/events/$(id)).data;
+    }
+
+    function userDoc(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+
+    function isOrganizer(id) {
+      return signedIn() && eventDoc(id).organizerId == request.auth.uid;
+    }
+
+    // A mandatory event only accepts check-ins from the year or club it lists.
+    // An event that lists no groups accepts everyone.
+    function mayCheckIn(ev) {
+      let u = userDoc(request.auth.uid);
+      let groups = ev.get('mandatoryFor', []);
+      return !ev.get('isMandatory', false)
+        || groups.size() == 0
+        || u.get('year', '') in groups
+        || (u.get('club', 'None') != 'None' && u.get('club', 'None') in groups);
+    }
+
     // ---------- Users ----------
     match /users/{uid} {
-      // Organizers need to read students' name, ID, year and club
-      // (attendance lists) and push tokens (notifications).
       allow read: if signedIn();
 
       allow create: if signedIn()
@@ -30,14 +51,12 @@ service cloud.firestore {
     match /events/{eventId} {
       allow read: if signedIn();
 
-      // Anyone signed in can create an event, as its organizer.
       allow create: if signedIn()
         && request.resource.data.organizerId == request.auth.uid
         && request.resource.data.title is string
         && request.resource.data.title.size() > 0
         && request.resource.data.endTime > request.resource.data.startTime;
 
-      // Only the organizer can change or delete it.
       allow update: if signedIn()
         && resource.data.organizerId == request.auth.uid
         && request.resource.data.organizerId == request.auth.uid;
@@ -45,12 +64,59 @@ service cloud.firestore {
       allow delete: if signedIn()
         && resource.data.organizerId == request.auth.uid;
 
-      // events/{id}/qr and events/{id}/checkins are added in the QR step.
+      // The rotating QR token. Only the organizer can read or write it.
+      match /qr/{docId} {
+        allow read: if isOrganizer(eventId);
+        allow create, update: if isOrganizer(eventId)
+          && docId == 'current'
+          && request.resource.data.issuedAt == request.time;
+        allow delete: if false;
+      }
+    }
+
+    // ---------- Check-ins (attendance) ----------
+    match /checkins/{docId} {
+      // A student reads their own check-ins. The organizer reads their event's check-ins.
+      allow read: if signedIn()
+        && (resource.data.userId == request.auth.uid
+            || resource.data.organizerId == request.auth.uid);
+
+      allow create: if signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'student'
+        && request.resource.data.keys().hasOnly(
+             ['eventId', 'userId', 'organizerId', 'token', 'studentName',
+              'studentId', 'year', 'club', 'checkedInAt'])
+        && request.resource.data.userId == request.auth.uid
+        && docId == request.resource.data.eventId + '_' + request.auth.uid
+        && request.resource.data.checkedInAt == request.time
+        && request.resource.data.token is string
+        && request.resource.data.token.size() >= 16
+        && request.resource.data.organizerId == eventDoc(request.resource.data.eventId).organizerId
+        && request.resource.data.organizerId != request.auth.uid
+        // Only the required year or club can check in to a mandatory event.
+        && mayCheckIn(eventDoc(request.resource.data.eventId))
+        // Inside the time window: 15 minutes before the start until the end.
+        && request.time >= eventDoc(request.resource.data.eventId).startTime - duration.value(15, 'm')
+        && request.time <= eventDoc(request.resource.data.eventId).endTime
+        // The token must be the live one, or the previous one for 15 seconds after a refresh.
+        && (
+          (request.resource.data.token ==
+             get(/databases/$(database)/documents/events/$(request.resource.data.eventId)/qr/current).data.token
+           && request.time <
+             get(/databases/$(database)/documents/events/$(request.resource.data.eventId)/qr/current).data.issuedAt + duration.value(45, 's'))
+          ||
+          (request.resource.data.token ==
+             get(/databases/$(database)/documents/events/$(request.resource.data.eventId)/qr/current).data.prevToken
+           && request.time <
+             get(/databases/$(database)/documents/events/$(request.resource.data.eventId)/qr/current).data.issuedAt + duration.value(15, 's'))
+        );
+
+      // No edits or deletes, which is what rejects a duplicate check-in.
+      allow update, delete: if false;
     }
 
     // ---------- Saved events (bookmarks) ----------
     match /savedEvents/{docId} {
-      // "resource == null" lets the app check whether a doc exists yet.
       allow read: if signedIn()
         && (resource == null || resource.data.userId == request.auth.uid);
 
@@ -68,11 +134,9 @@ service cloud.firestore {
       allow read: if signedIn()
         && resource.data.userId == request.auth.uid;
 
-      // Organizers create notifications for the people they notify.
       allow create: if signedIn()
         && request.resource.data.isRead == false;
 
-      // The recipient can only flip "isRead".
       allow update: if signedIn()
         && resource.data.userId == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);

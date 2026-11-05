@@ -29,6 +29,7 @@ import { categoryColor } from '../utils/category';
 import { formatLongDate, formatTimeRange } from '../utils/dates';
 import { colors, radius, spacing } from '../theme';
 import { useAttendedIds } from '../hooks/useAttendedIds';
+import { appliesToStudent } from '../utils/mandatory';
 
 type EventRoute = RouteProp<{ EventDetails: { eventId: string } }, 'EventDetails'>;
 
@@ -135,7 +136,7 @@ export default function EventDetailsScreen() {
   const hasSchedule = !!event.scheduleContent && (event.scheduleType === 'pdf' || event.scheduleType === 'text');
 
   // The second footer button depends on who is looking at the event.
-  const showCheckIn = isStudent && event.isMandatory && !isOwner;
+  const showCheckIn = isStudent && event.isMandatory && !isOwner && !!profile && appliesToStudent(event, profile.year, profile.club);
   const showQr = isOwner && event.isMandatory;
 
   return (

@@ -23,6 +23,7 @@ import NotificationPrefsScreen from '../screens/NotificationPrefsScreen';
 import ScannerScreen from '../screens/ScannerScreen';
 import ShowQRScreen from '../screens/ShowQRScreen';
 import AttendanceScreen from '../screens/AttendanceScreen';
+import AttendanceHistoryScreen from '../screens/AttendanceHistoryScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -64,6 +65,7 @@ function MainStack() {
     <Stack.Navigator>
       <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
       <Stack.Screen name="EventDetails" component={EventDetailsScreen} options={{ title: 'Event Details', headerTintColor: colors.primary }}/>
+      <Stack.Screen name="AttendanceHistory" component={AttendanceHistoryScreen} options={{ title: 'Attendance History', headerTintColor: colors.primary }}/>
       <Stack.Screen name="MyEvents" component={MyEventsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditEvent" component={EditEventScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
