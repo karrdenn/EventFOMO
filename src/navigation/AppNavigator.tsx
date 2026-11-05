@@ -26,6 +26,7 @@ import AttendanceScreen from '../screens/AttendanceScreen';
 import AttendanceHistoryScreen from '../screens/AttendanceHistoryScreen';
 import { useReminderSync } from '../hooks/useReminderSync';
 import { useNotificationTap } from '../hooks/useNotificationTap';
+import { usePushRegistration } from '../hooks/usePushRegistration';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -45,6 +46,7 @@ function Tabs() {
   const { profile } = useAuth();
   const { unread } = useNotifications(profile?.uid);
   useReminderSync();
+  usePushRegistration();
   useNotificationTap();
 
   return (

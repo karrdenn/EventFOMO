@@ -8,6 +8,7 @@ import { notifyNewEvent } from '../services/notify';
 import { useAuth } from '../context/AuthContext';
 import EventForm, { EventFormData } from '../components/EventForm';
 import { colors, spacing } from '../theme';
+import { sendEventPush } from '../services/push';
 
 export default function CreateEventScreen() {
   const { profile } = useAuth();
@@ -37,6 +38,12 @@ export default function CreateEventScreen() {
       },
       profile.uid
     ).catch(() => {});
+    try {
+        // For one-phone testing, change false to true, then change it back.
+        await sendEventPush(ref.id, data, profile.uid, false);
+      } catch (e) {
+        console.warn('Could not send push', e);
+      }
 
     setFormKey((k) => k + 1);
     navigation.navigate('EventDetails', { eventId: ref.id });
