@@ -24,6 +24,8 @@ import ScannerScreen from '../screens/ScannerScreen';
 import ShowQRScreen from '../screens/ShowQRScreen';
 import AttendanceScreen from '../screens/AttendanceScreen';
 import AttendanceHistoryScreen from '../screens/AttendanceHistoryScreen';
+import { useReminderSync } from '../hooks/useReminderSync';
+import { useNotificationTap } from '../hooks/useNotificationTap';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -42,6 +44,8 @@ const tabIcons: Record<string, IconName> = {
 function Tabs() {
   const { profile } = useAuth();
   const { unread } = useNotifications(profile?.uid);
+  useReminderSync();
+  useNotificationTap();
 
   return (
     <Tab.Navigator
