@@ -1,87 +1,86 @@
 export type Palette = {
-    primary: string;
-    primaryDark: string;
-    accent: string;
-    background: string;
-    authBackground: string;
-    surface: string;
-    text: string;
-    textMuted: string;
-    divider: string;
-    error: string;
-    mandatoryBg: string;
-    mandatoryText: string;
-    // New names for colors that were typed directly into screens:
-    tint: string; // was #EFEBFF, soft purple fills
-    chip: string; // was #E8EAF6, unselected chips
-    border: string; // was #D9DCE8, input borders
-    unreadBg: string; // was #F3F0FF, unread alert cards
-    successBg: string; // was #E3F6E8
-    successText: string; // was #1B7A3A and #2E7D32
-    placeholder: string; // was #9E9E9E
-    white: string; // QR code box stays white in both themes
-    category: {
-      Cultural: string;
-      'Guest Lecture': string;
-      Workshop: string;
-      Technical: string;
-    };
+  primary: string;
+  primaryDark: string;
+  accent: string;
+  background: string;
+  authBackground: string;
+  surface: string;
+  text: string;
+  textMuted: string;
+  divider: string;
+  error: string;
+  mandatoryBg: string;
+  mandatoryText: string;
+  tint: string; // soft fills in the main color
+  chip: string; // unselected chips
+  border: string; // input borders
+  unreadBg: string; // unread alert cards
+  successBg: string;
+  successText: string;
+  placeholder: string;
+  white: string; // QR code box stays white in both themes
+  category: {
+    Cultural: string;
+    'Guest Lecture': string;
+    Workshop: string;
+    Technical: string;
   };
-  
-  export const lightColors: Palette = {
-    primary: '#6C5CE7',
-    primaryDark: '#512DA8',
-    accent: '#FF4081',
-    background: '#F8F9FE',
-    authBackground: '#F4F7FF',
-    surface: '#FFFFFF',
-    text: '#1C1B1F',
-    textMuted: '#757575',
-    divider: '#EEEEEE',
-    error: '#D32F2F',
-    mandatoryBg: '#FFCDD2',
-    mandatoryText: '#D32F2F',
-    tint: '#EFEBFF',
-    chip: '#E8EAF6',
-    border: '#D9DCE8',
-    unreadBg: '#F3F0FF',
-    successBg: '#E3F6E8',
-    successText: '#1B7A3A',
-    placeholder: '#9E9E9E',
-    white: '#FFFFFF',
-    category: {
-      Cultural: '#FF4081',
-      'Guest Lecture': '#6C5CE7',
-      Workshop: '#FF9800',
-      Technical: '#2196F3',
-    },
-  };
-  
-  export const darkColors: Palette = {
-    primary: '#7B6CF0',
-    primaryDark: '#B3A9FF',
-    accent: '#FF5C93',
-    background: '#121118',
-    authBackground: '#121118',
-    surface: '#1E1C26',
-    text: '#ECEAF4',
-    textMuted: '#A19FAE',
-    divider: '#2E2B3A',
-    error: '#EF5350',
-    mandatoryBg: '#4A1F24',
-    mandatoryText: '#FF8A80',
-    tint: '#2A2640',
-    chip: '#2B2938',
-    border: '#3A3748',
-    unreadBg: '#272243',
-    successBg: '#1B3A26',
-    successText: '#6FD58C',
-    placeholder: '#6F6D7B',
-    white: '#FFFFFF',
-    category: {
-      Cultural: '#FF5C93',
-      'Guest Lecture': '#9A8DF5',
-      Workshop: '#FFA726',
-      Technical: '#42A5F5',
-    },
-  };
+};
+
+export const lightColors: Palette = {
+  primary: '#1E3A8A',
+  primaryDark: '#0B5750',
+  accent: '#F59E0B',
+  background: '#F5FAF9',
+  authBackground: '#F2F8F7',
+  surface: '#FFFFFF',
+  text: '#14201E',
+  textMuted: '#667674',
+  divider: '#E3ECEB',
+  error: '#D32F2F',
+  mandatoryBg: '#FFCDD2',
+  mandatoryText: '#D32F2F',
+  tint: '#E3F4F1',
+  chip: '#E1EEEC',
+  border: '#D3E2DF',
+  unreadBg: '#EAF7F4',
+  successBg: '#E3F6E8',
+  successText: '#1B7A3A',
+  placeholder: '#93A3A1',
+  white: '#FFFFFF',
+  category: {
+    Cultural: '#E91E63',
+    'Guest Lecture': '#5C6BC0',
+    Workshop: '#F59E0B',
+    Technical: '#1E88E5',
+  },
+};
+
+export const darkColors: Palette = {
+  primary: '#EAB308',
+  primaryDark: '#5EEAD4',
+  accent: '#FBBF24',
+  background: '#0D1514',
+  authBackground: '#0D1514',
+  surface: '#16211F',
+  text: '#E6F2F0',
+  textMuted: '#9AB0AC',
+  divider: '#25332F',
+  error: '#EF5350',
+  mandatoryBg: '#4A1F24',
+  mandatoryText: '#FF8A80',
+  tint: '#16302D',
+  chip: '#1E2B29',
+  border: '#2D3F3C',
+  unreadBg: '#13282A',
+  successBg: '#1B3A26',
+  successText: '#6FD58C',
+  placeholder: '#667876',
+  white: '#FFFFFF',
+  category: {
+    Cultural: '#F06292',
+    'Guest Lecture': '#9FA8DA',
+    Workshop: '#FBBF24',
+    Technical: '#64B5F6',
+  },
+};
