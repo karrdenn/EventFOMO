@@ -20,6 +20,7 @@ import CalendarScreen from '../screens/CalendarScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import AlertsScreen from '../screens/AlertsScreen';
 import NotificationPrefsScreen from '../screens/NotificationPrefsScreen';
+import AppearanceScreen from '../screens/AppearanceScreen';
 import ScannerScreen from '../screens/ScannerScreen';
 import ShowQRScreen from '../screens/ShowQRScreen';
 import AttendanceScreen from '../screens/AttendanceScreen';
@@ -98,8 +99,9 @@ function MainStack() {
       <Stack.Screen
         name="NotificationPrefs"
         component={NotificationPrefsScreen}
-        options={{ title: 'Notification Preferences' }}
+        options={{ headerShown: false }}
       />
+      <Stack.Screen name="Appearance" component={AppearanceScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

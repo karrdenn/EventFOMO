@@ -11,20 +11,15 @@ import { useSavedIds } from '../hooks/useSavedIds';
 import { useAttendedIds } from '../hooks/useAttendedIds';
 import ComplianceCard from '../components/ComplianceCard';
 import { UserProfile } from '../types';
-import { Palette, ThemeMode, radius, spacing, useTheme, useThemedStyles } from '../theme';
+import { Palette, radius, spacing, useTheme, useThemedStyles } from '../theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
-
-const MODES: { label: string; value: ThemeMode }[] = [
-  { label: 'System', value: 'system' },
-  { label: 'Light', value: 'light' },
-  { label: 'Dark', value: 'dark' },
-];
 
 export default function ProfileScreen() {
   const { profile: authProfile, logOut } = useAuth();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
-  const { colors, mode, setMode } = useTheme();
+  const { colors, mode } = useTheme();
+  const modeLabel = mode === 'system' ? 'System' : mode === 'light' ? 'Light' : 'Dark';
   const styles = useThemedStyles(makeStyles);
   const { events } = useEvents();
   const savedIds = useSavedIds(authProfile?.uid);
@@ -72,16 +67,19 @@ export default function ProfileScreen() {
     onPress,
     color = colors.primary,
     textColor = colors.text,
+    value,
   }: {
     icon: IconName;
     label: string;
     onPress: () => void;
     color?: string;
     textColor?: string;
+    value?: string;
   }) => (
     <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.8}>
       <Ionicons name={icon} size={20} color={color} />
       <Text style={[styles.rowText, { color: textColor }]}>{label}</Text>
+      {value ? <Text style={styles.rowValue}>{value}</Text> : null}
       <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
     </TouchableOpacity>
   );
@@ -133,21 +131,6 @@ export default function ProfileScreen() {
 
         <ComplianceCard />
 
-        <View style={styles.appearanceCard}>
-          <Text style={styles.appearanceTitle}>Appearance</Text>
-          <View style={styles.modeRow}>
-            {MODES.map((m) => (
-              <TouchableOpacity
-                key={m.value}
-                style={[styles.modeChip, mode === m.value && styles.modeChipActive]}
-                onPress={() => setMode(m.value)}
-              >
-                <Text style={[styles.modeText, mode === m.value && styles.modeTextActive]}>{m.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
         <View style={styles.menu}>
           <Row icon="create-outline" label="Edit Profile" onPress={() => navigation.navigate('EditProfile')} />
           <Row icon="calendar-outline" label="My Events" onPress={() => navigation.navigate('MyEvents')} />
@@ -155,6 +138,12 @@ export default function ProfileScreen() {
             icon="notifications-outline"
             label="Notification Preferences"
             onPress={() => navigation.navigate('NotificationPrefs')}
+          />
+          <Row
+            icon="contrast-outline"
+            label="Appearance"
+            value={modeLabel}
+            onPress={() => navigation.navigate('Appearance')}
           />
           <Row icon="help-circle-outline" label="Help & Support" onPress={showHelp} />
           <Row
@@ -207,27 +196,6 @@ const makeStyles = (colors: Palette) =>
     },
     statNumber: { fontSize: 22, fontWeight: '800', color: colors.text },
     statLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-    appearanceCard: {
-      backgroundColor: colors.surface,
-      borderRadius: radius.md,
-      padding: spacing.md,
-      marginHorizontal: spacing.md,
-      marginTop: spacing.md,
-      borderWidth: 1,
-      borderColor: colors.divider,
-    },
-    appearanceTitle: { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 10 },
-    modeRow: { flexDirection: 'row', gap: 8 },
-    modeChip: {
-      flex: 1,
-      alignItems: 'center',
-      paddingVertical: 9,
-      borderRadius: radius.pill,
-      backgroundColor: colors.chip,
-    },
-    modeChipActive: { backgroundColor: colors.primary },
-    modeText: { fontSize: 13, color: colors.text, fontWeight: '600' },
-    modeTextActive: { color: '#fff' },
     menu: { marginTop: spacing.md, paddingHorizontal: spacing.md, gap: 10 },
     row: {
       flexDirection: 'row',
@@ -238,5 +206,6 @@ const makeStyles = (colors: Palette) =>
       padding: spacing.md,
     },
     rowText: { flex: 1, fontSize: 15, fontWeight: '600' },
+    rowValue: { fontSize: 13, color: colors.textMuted },
     version: { textAlign: 'center', color: colors.textMuted, fontSize: 12, marginTop: spacing.lg },
   });
