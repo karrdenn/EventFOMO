@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radius, spacing } from '../theme';
+import { Palette, radius, spacing, useColors, useThemedStyles } from '../theme';
 
 type Props = TextInputProps & {
   label: string;
@@ -10,6 +10,8 @@ type Props = TextInputProps & {
 };
 
 export default function AuthInput({ label, secure, error, ...rest }: Props) {
+  const colors = useColors();
+  const styles = useThemedStyles(makeStyles);
   const [hidden, setHidden] = useState(!!secure);
 
   return (
@@ -18,7 +20,7 @@ export default function AuthInput({ label, secure, error, ...rest }: Props) {
       <View style={[styles.box, error ? styles.boxError : null]}>
         <TextInput
           style={styles.input}
-          placeholderTextColor="#9E9E9E"
+          placeholderTextColor={colors.placeholder}
           autoCapitalize="none"
           secureTextEntry={hidden}
           {...rest}
@@ -34,19 +36,20 @@ export default function AuthInput({ label, secure, error, ...rest }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { marginBottom: spacing.md },
-  label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
-  box: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-  },
-  boxError: { borderColor: colors.error },
-  input: { flex: 1, paddingVertical: 12, fontSize: 15, color: colors.text },
-  error: { color: colors.error, fontSize: 12, marginTop: 4 },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    wrap: { marginBottom: spacing.md },
+    label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
+    box: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+    },
+    boxError: { borderColor: colors.error },
+    input: { flex: 1, paddingVertical: 12, fontSize: 15, color: colors.text },
+    error: { color: colors.error, fontSize: 12, marginTop: 4 },
+  });

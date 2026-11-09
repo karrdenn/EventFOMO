@@ -7,12 +7,14 @@ import PrimaryButton from '../../components/PrimaryButton';
 import { useAuth } from '../../context/AuthContext';
 import { friendlyAuthError } from '../../utils/authErrors';
 import { AuthStackParamList } from '../../navigation/types';
-import { authStyles as s } from './authStyles';
+import { useThemedStyles } from '../../theme';
+import { makeAuthStyles } from './authStyles';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const { signIn } = useAuth();
+  const s = useThemedStyles(makeAuthStyles);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -61,7 +63,10 @@ export default function LoginScreen({ navigation }: Props) {
             secure
           />
 
-          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={{ alignSelf: 'flex-end', marginBottom: 16 }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ForgotPassword')}
+            style={{ alignSelf: 'flex-end', marginBottom: 16 }}
+          >
             <Text style={s.link}>Forgot Password?</Text>
           </TouchableOpacity>
 

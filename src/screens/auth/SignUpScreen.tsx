@@ -16,13 +16,15 @@ import { useAuth } from '../../context/AuthContext';
 import { friendlyAuthError } from '../../utils/authErrors';
 import { AuthStackParamList } from '../../navigation/types';
 import { CLUBS, Role, YEARS } from '../../types';
-import { colors, radius, spacing } from '../../theme';
-import { authStyles as s } from './authStyles';
+import { Palette, radius, spacing, useThemedStyles } from '../../theme';
+import { makeAuthStyles } from './authStyles';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
 export default function SignUpScreen({ navigation }: Props) {
   const { signUp } = useAuth();
+  const s = useThemedStyles(makeAuthStyles);
+  const styles = useThemedStyles(makeStyles);
   const [role, setRole] = useState<Role>('student');
   const [fullName, setFullName] = useState('');
   const [studentId, setStudentId] = useState('');
@@ -143,6 +145,7 @@ export default function SignUpScreen({ navigation }: Props) {
 }
 
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <TouchableOpacity style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
       <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
@@ -150,29 +153,30 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   );
 }
 
-const styles = StyleSheet.create({
-  toggle: {
-    flexDirection: 'row',
-    backgroundColor: '#E8EAF6',
-    borderRadius: radius.md,
-    padding: 4,
-    marginBottom: spacing.md,
-  },
-  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: radius.sm },
-  toggleActive: { backgroundColor: colors.surface },
-  toggleText: { color: colors.textMuted, fontWeight: '600' },
-  toggleTextActive: { color: colors.primary },
-  label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.md },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#D9DCE8',
-  },
-  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13 },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    toggle: {
+      flexDirection: 'row',
+      backgroundColor: colors.tint,
+      borderRadius: radius.md,
+      padding: 4,
+      marginBottom: spacing.md,
+    },
+    toggleBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: radius.sm },
+    toggleActive: { backgroundColor: colors.surface },
+    toggleText: { color: colors.textMuted, fontWeight: '600' },
+    toggleTextActive: { color: colors.primary },
+    label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.md },
+    chip: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+    chipText: { color: colors.text, fontSize: 13 },
+    chipTextActive: { color: '#fff', fontWeight: '600' },
+  });

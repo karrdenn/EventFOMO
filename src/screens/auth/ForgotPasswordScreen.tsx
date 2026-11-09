@@ -7,12 +7,14 @@ import PrimaryButton from '../../components/PrimaryButton';
 import { useAuth } from '../../context/AuthContext';
 import { friendlyAuthError } from '../../utils/authErrors';
 import { AuthStackParamList } from '../../navigation/types';
-import { authStyles as s } from './authStyles';
+import { useThemedStyles } from '../../theme';
+import { makeAuthStyles } from './authStyles';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>;
 
 export default function ForgotPasswordScreen({ navigation }: Props) {
   const { resetPassword } = useAuth();
+  const s = useThemedStyles(makeAuthStyles);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -46,9 +48,7 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
 
         {error ? <Text style={s.errorBanner}>{error}</Text> : null}
         {sent ? (
-          <Text style={s.successBanner}>
-            Reset link sent. Check your inbox (and spam folder).
-          </Text>
+          <Text style={s.successBanner}>Reset link sent. Check your inbox (and spam folder).</Text>
         ) : null}
 
         <AuthInput

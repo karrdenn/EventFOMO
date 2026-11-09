@@ -10,7 +10,7 @@ configureNotifications();
 
 function ThemedStatusBar() {
   const { isDark } = useTheme();
-  return <StatusBar style={isDark ? 'light' : 'dark'} />;
+  return <StatusBar style="auto" />;
 }
 
 export default function App() {
