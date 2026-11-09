@@ -95,7 +95,6 @@ export default function NotificationPrefsScreen() {
 
         <Text style={styles.note}>
           Manage how you want to be notified about campus life. You can change these settings at any time.
-          Reminders before events and alerts on the lock screen are added in a later step.
         </Text>
       </ScrollView>
     </SafeAreaView>

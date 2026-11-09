@@ -44,7 +44,7 @@ export default function EventCard({ event, saved, onPress, onToggleSave }: Props
           <Ionicons
             name={saved ? 'bookmark' : 'bookmark-outline'}
             size={20}
-            color={saved ? colors.primary : '#1C1B1F'}
+            color={saved ? colors.primary : colors.text}
           />
         </TouchableOpacity>
       </View>
